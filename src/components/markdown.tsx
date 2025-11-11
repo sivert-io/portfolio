@@ -8,8 +8,48 @@ import {
   type ComponentProps,
   type ComponentType,
   type ReactNode,
+  type SVGProps,
 } from 'react'
 import * as jsxRuntime from 'react/jsx-runtime'
+import type { IconType } from 'react-icons'
+
+type IconModule = Record<string, unknown>
+
+const ICON_PREFIX_LOADERS: Record<string, () => Promise<IconModule>> = {
+  fa6: () => import('react-icons/fa6'),
+  vsc: () => import('react-icons/vsc'),
+  tfi: () => import('react-icons/tfi'),
+  io5: () => import('react-icons/io5'),
+  hi2: () => import('react-icons/hi2'),
+  ai: () => import('react-icons/ai'),
+  bi: () => import('react-icons/bi'),
+  bs: () => import('react-icons/bs'),
+  cg: () => import('react-icons/cg'),
+  ci: () => import('react-icons/ci'),
+  di: () => import('react-icons/di'),
+  fa: () => import('react-icons/fa'),
+  fi: () => import('react-icons/fi'),
+  gi: () => import('react-icons/gi'),
+  go: () => import('react-icons/go'),
+  gr: () => import('react-icons/gr'),
+  hi: () => import('react-icons/hi'),
+  im: () => import('react-icons/im'),
+  io: () => import('react-icons/io'),
+  lu: () => import('react-icons/lu'),
+  md: () => import('react-icons/md'),
+  pi: () => import('react-icons/pi'),
+  ri: () => import('react-icons/ri'),
+  rx: () => import('react-icons/rx'),
+  si: () => import('react-icons/si'),
+  sl: () => import('react-icons/sl'),
+  tb: () => import('react-icons/tb'),
+  ti: () => import('react-icons/ti'),
+  wi: () => import('react-icons/wi'),
+}
+
+const ICON_PREFIXES = Object.keys(ICON_PREFIX_LOADERS).sort((a, b) => b.length - a.length)
+const ICON_CACHE = new Map<string, IconType>()
+const ICON_MODULE_CACHE = new Map<string, Promise<IconModule>>()
 
 type LightboxImage = {
   src: string
@@ -27,6 +67,83 @@ const baseProseClass =
 
 function mergeClassNames(...classes: Array<string | null | undefined>) {
   return classes.filter(Boolean).join(' ')
+}
+
+function resolveIconPrefix(name: string) {
+  const lower = name.toLowerCase()
+  return ICON_PREFIXES.find((prefix) => lower.startsWith(prefix)) ?? null
+}
+
+function Icon({
+  name,
+  size = 20,
+  className,
+  ...props
+}: { name: string; size?: number | string } & SVGProps<SVGSVGElement>) {
+  const [icon, setIcon] = useState<IconType | null>(() => {
+    return ICON_CACHE.get(name) ?? null
+  })
+
+  useEffect(() => {
+    if (!name) return
+    const cached = ICON_CACHE.get(name)
+    if (cached) {
+      setIcon(() => cached)
+      return
+    }
+
+    setIcon(null)
+
+    const prefix = resolveIconPrefix(name)
+    if (!prefix) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn(`[Icon] No loader configured for icon "${name}"`)
+      }
+      return
+    }
+
+    const loader = ICON_PREFIX_LOADERS[prefix]
+    if (!loader) return
+
+    const loadModule = ICON_MODULE_CACHE.get(prefix) ?? loader()
+    ICON_MODULE_CACHE.set(prefix, loadModule)
+
+    let cancelled = false
+    loadModule
+      .then((module) => {
+        if (cancelled) return
+        const candidate = module[name as keyof IconModule]
+        if (typeof candidate !== 'function') {
+          if (process.env.NODE_ENV !== 'production') {
+            console.warn(`[Icon] Unable to locate export "${name}" in react-icons/${prefix}`)
+          }
+          return
+        }
+        const Loaded = candidate as IconType
+        ICON_CACHE.set(name, Loaded)
+        setIcon(() => Loaded)
+      })
+      .catch(() => {
+        if (process.env.NODE_ENV !== 'production') {
+          console.warn(`[Icon] Failed to load icon module for prefix "${prefix}"`)
+        }
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [name])
+
+  if (!icon) return null
+
+  const Component = icon
+  return (
+    <Component
+      className={mergeClassNames('inline-block align-middle', className)}
+      size={size}
+      {...props}
+    />
+  )
 }
 
 function MarkdownImage({
@@ -89,6 +206,7 @@ const defaultComponents = (
     <MarkdownImage {...props} registerImage={registerImage} onOpen={openImage} />
   ),
   a: Anchor,
+  Icon,
 })
 
 type LightboxOverlayProps = {

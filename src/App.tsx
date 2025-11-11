@@ -134,9 +134,9 @@ function App() {
         <motion.div
           className="fixed inset-0 overflow-auto pt-[128px]"
           key={currentPage}
-          initial={{ opacity: 0, y: 16 }}
+          initial={{ opacity: 0, y: 0 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -16 }}
+          exit={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, ease: 'easeOut' }}
         >
           <div className="px-8 pb-8">

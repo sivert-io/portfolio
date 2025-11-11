@@ -11,9 +11,9 @@ type PageStoreState = {
   markContentReady: () => void
 }
 
-const SWIPE_COVER_DURATION = 350
-const MIN_LOADING_DURATION = 900
-const CONTENT_RELEASE_DELAY = 150
+const SWIPE_COVER_DURATION = 220
+const INITIAL_LOAD_DURATION = 1000
+const TRANSITION_RELEASE_DELAY = 40
 const TRANSITION_FAILSAFE_DURATION = 4000
 
 let pageSwitchTimeout: ReturnType<typeof setTimeout> | null = null
@@ -33,8 +33,10 @@ const usePageStore = create<PageStoreState>((set, get) => ({
       hasLoadedOnce: state.hasLoadedOnce || !loading,
     })),
   navigateTo: (page) => {
-    const { currentPage, isLoading } = get()
+    const { currentPage, isLoading, hasLoadedOnce } = get()
     const now = Date.now()
+    const minimumDuration = hasLoadedOnce ? 0 : INITIAL_LOAD_DURATION
+
     if (page === currentPage) {
       if (!isLoading) {
         set((state) => ({
@@ -52,7 +54,7 @@ const usePageStore = create<PageStoreState>((set, get) => ({
         transitionReleaseTimeout = setTimeout(() => {
           set({ isLoading: false, transitionStartedAt: null, hasLoadedOnce: true })
           transitionReleaseTimeout = null
-        }, TRANSITION_FAILSAFE_DURATION)
+        }, Math.max(minimumDuration, TRANSITION_FAILSAFE_DURATION))
       }
       return
     }
@@ -87,7 +89,7 @@ const usePageStore = create<PageStoreState>((set, get) => ({
     }, TRANSITION_FAILSAFE_DURATION)
   },
   markContentReady: () => {
-    const { isLoading, transitionStartedAt } = get()
+    const { isLoading, transitionStartedAt, hasLoadedOnce } = get()
     if (!isLoading) {
       return
     }
@@ -101,14 +103,15 @@ const usePageStore = create<PageStoreState>((set, get) => ({
       readyReleaseTimeout = null
     }
 
+    const minimumDuration = hasLoadedOnce ? 0 : INITIAL_LOAD_DURATION
     const startedAt = transitionStartedAt ?? Date.now()
     const elapsed = Date.now() - startedAt
-    const waitForMinimum = Math.max(MIN_LOADING_DURATION - elapsed, 0)
+    const waitForMinimum = Math.max(minimumDuration - elapsed, 0)
 
     readyReleaseTimeout = setTimeout(() => {
       set({ isLoading: false, transitionStartedAt: null, hasLoadedOnce: true })
       readyReleaseTimeout = null
-    }, waitForMinimum + CONTENT_RELEASE_DELAY)
+    }, waitForMinimum + TRANSITION_RELEASE_DELAY)
   },
 }))
 
