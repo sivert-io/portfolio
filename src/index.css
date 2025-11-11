@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: #000;
+  --color-foreground: #e5e5e5;
+}
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  html {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+  }
+
+  body {
+    min-height: 100%;
+    background-color: transparent;
+  }
+
+  *, ::before, ::after {
+    color: inherit;
+    border-color: currentColor;
+  }
+
+  body,
+  body * {
+    background-color: transparent;
+  }
+
+  body::before,
+  body::after,
+  body *::before,
+  body *::after {
+    background-color: transparent;
+  }
+
+  ::selection {
+    background-color: var(--color-foreground);
+    color: var(--color-background);
+  }
+}

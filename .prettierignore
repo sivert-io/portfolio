@@ -1,0 +1,8 @@
+dist
+node_modules
+.turbo
+.next
+*.log
+coverage
+public/logo*.png
+
