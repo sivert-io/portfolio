@@ -8,6 +8,7 @@
 @layer base {
   :root {
     color-scheme: dark;
+    font-family: 'Stack Sans Headline', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   }
 
   html {
@@ -28,6 +29,7 @@
   body,
   body * {
     background-color: transparent;
+    font-family: inherit;
   }
 
   body::before,
