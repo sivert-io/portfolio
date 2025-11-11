@@ -1,0 +1,27 @@
+[
+  {
+    "title": "About",
+    "description": "Designer & front-end engineer building playful, high-performance interfaces.",
+    "heroImage": "https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&w=1600&q=80",
+    "body": "const{Fragment:e,jsx:t,jsxs:n}=arguments[0];function _createMdxContent(i){const r={h2:\"h2\",h3:\"h3\",img:\"img\",li:\"li\",p:\"p\",strong:\"strong\",ul:\"ul\",...i.components};return n(e,{children:[t(r.h2,{children:\"Hey, I'm Sivert\"}),\"\\n\",t(r.p,{children:\"I craft immersive interfaces and technical storytelling for forward-thinking teams. My sweet spot lives where product strategy, interaction design, and animation intersect. I obsess over the subtle details: easing curves that feel natural, typography that guides without shouting, and systems that scale gracefully without losing personality.\"}),\"\\n\",t(r.p,{children:t(r.img,{src:\"https://images.unsplash.com/photo-1545239351-1141bd82e8a6?auto=format&fit=crop&w=1400&q=80\",alt:\"Sketching interface flows on a light table\"})}),\"\\n\",t(r.h3,{children:\"What drives me\"}),\"\\n\",n(r.ul,{children:[\"\\n\",n(r.li,{children:[t(r.strong,{children:\"Motion as language.\"}),\" Thoughtful transitions help people build trust and intuition with a product.\"]}),\"\\n\",n(r.li,{children:[t(r.strong,{children:\"Full-stack empathy.\"}),\" I move comfortably between Figma, TypeScript, and shaders, translating constraints into opportunities.\"]}),\"\\n\",n(r.li,{children:[t(r.strong,{children:\"Accessible polish.\"}),\" I see no trade-off between sweeping visuals and inclusive experiences.\"]}),\"\\n\"]}),\"\\n\",t(r.h3,{children:\"How I work\"}),\"\\n\",t(r.p,{children:\"I lead discovery, prototype rapidly, and validate ideas with real users whenever possible. Once we're confident in the direction, I help ship the production implementation—usually in React, powered by frameworks like Vite or Next.js, with design systems tailored for the brand.\"}),\"\\n\",t(r.h3,{children:\"Outside the editor\"}),\"\\n\",t(r.p,{children:\"When I'm not animating pixels, you can find me capturing analog photos of Scandinavian coastlines, tinkering with modular synth patches, or curating playlists for late-night creative jams.\"})]})}return{default:function(e={}){const{wrapper:n}=e.components||{};return n?t(n,{...e,children:t(_createMdxContent,{...e})}):_createMdxContent(e)}};",
+    "slug": "about",
+    "url": "/about",
+    "_id": "about"
+  },
+  {
+    "title": "Projects",
+    "description": "A deeper look at experiments and product drops that shaped my practice.",
+    "body": "const{jsx:n}=arguments[0];function _createMdxContent(e){const t={p:\"p\",...e.components};return n(t.p,{children:\"Every project below includes build notes, design rationale, and behind-the-scenes process shots. Click any image to open the lightbox and zoom in on interaction details.\"})}return{default:function(e={}){const{wrapper:t}=e.components||{};return t?n(t,{...e,children:n(_createMdxContent,{...e})}):_createMdxContent(e)}};",
+    "slug": "projects",
+    "url": "/projects",
+    "_id": "projects"
+  },
+  {
+    "title": "Selected Work",
+    "description": "Highlights from product launches, immersive prototypes, and motion studies.",
+    "body": "const{Fragment:e,jsx:n,jsxs:t}=arguments[0];function _createMdxContent(r){const i={h2:\"h2\",h3:\"h3\",li:\"li\",p:\"p\",strong:\"strong\",ul:\"ul\",...r.components};return t(e,{children:[n(i.h2,{children:\"Recent collaborations\"}),\"\\n\",n(i.p,{children:\"Over the last few years I've partnered with venture-backed startups, cultural institutions, and research labs to ship expressive digital products. My preferred format is a close partnership with founders or product teams where we iterate quickly, test often, and treat polish as a feature.\"}),\"\\n\",n(i.h3,{children:\"Focus areas\"}),\"\\n\",t(i.ul,{children:[\"\\n\",t(i.li,{children:[n(i.strong,{children:\"Creative tooling\"}),\" for musicians and filmmakers.\"]}),\"\\n\",t(i.li,{children:[n(i.strong,{children:\"Data-rich dashboards\"}),\" with cinematic motion cues.\"]}),\"\\n\",t(i.li,{children:[n(i.strong,{children:\"Immersive brand storytelling\"}),\" on the web.\"]}),\"\\n\"]}),\"\\n\",n(i.p,{children:\"Below you'll find a few in-depth case studies. Each one links to high-resolution imagery and interaction captures you can explore in detail.\"})]})}return{default:function(e={}){const{wrapper:t}=e.components||{};return t?n(t,{...e,children:n(_createMdxContent,{...e})}):_createMdxContent(e)}};",
+    "slug": "work",
+    "url": "/work",
+    "_id": "work"
+  }
+]

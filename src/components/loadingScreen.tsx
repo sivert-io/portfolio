@@ -20,7 +20,7 @@ export function LoadingScreen() {
       {isLoading && (
         <motion.div
           key={isPageTransition ? 'transition-overlay' : 'initial-loader'}
-          className="pointer-events-none fixed inset-0 z-50 overflow-hidden"
+          className="pointer-events-none fixed inset-0 z-40 overflow-hidden"
           initial={{ opacity: 1 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0, transition: { duration: 0.6, ease: 'easeOut' } }}

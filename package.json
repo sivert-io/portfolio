@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "velite build && tsc -b && vite build",
+    "content:dev": "velite dev",
     "lint": "eslint .",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md,css,html}\"",
     "preview": "vite preview"
@@ -13,7 +14,9 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.1.17",
     "fast-xml-parser": "^5.3.1",
+    "mdx-bundler": "^10.0.2",
     "motion": "^12.23.24",
+    "photoswipe": "^5.4.4",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "tailwindcss": "^4.1.17",
@@ -22,10 +25,11 @@
   "devDependencies": {
     "@eslint/js": "^9.39.1",
     "@types/node": "^24.10.0",
-    "@types/react": "^19.2.2",
+    "@tailwindcss/typography": "^0.5.19",
+    "@types/react": "^19.2.3",
     "@types/react-dom": "^19.2.2",
     "@vitejs/plugin-react": "^5.1.0",
-    "babel-plugin-react-compiler": "^19.1.0-rc.3",
+    "babel-plugin-react-compiler": "^19.1.0-rc.1-rc-af1b7da-20250421",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react-hooks": "^5.2.0",
@@ -33,9 +37,14 @@
     "globals": "^16.5.0",
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.7.1",
+    "velite": "^0.3.0",
+    "@velite/plugin-vite": "^0.0.1",
     "svg-path-commander": "^2.1.11",
+    "rehype-autolink-headings": "^7.1.0",
+    "rehype-slug": "^6.0.0",
+    "remark-gfm": "^4.0.1",
     "typescript": "~5.9.3",
-    "typescript-eslint": "^8.46.3",
+    "typescript-eslint": "^8.46.4",
     "vite": "^7.2.2"
   }
 }

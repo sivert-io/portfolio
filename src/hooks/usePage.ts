@@ -4,6 +4,7 @@ type PageStoreState = {
   currentPage: string
   isLoading: boolean
   transitionStartedAt: number | null
+  hasLoadedOnce: boolean
   setCurrentPage: (page: string) => void
   setIsLoading: (loading: boolean) => void
   navigateTo: (page: string) => void
@@ -23,14 +24,24 @@ const usePageStore = create<PageStoreState>((set, get) => ({
   currentPage: 'home',
   isLoading: true,
   transitionStartedAt: Date.now(),
+  hasLoadedOnce: false,
   setCurrentPage: (page) => set({ currentPage: page }),
-  setIsLoading: (loading) => set({ isLoading: loading, transitionStartedAt: loading ? Date.now() : null }),
+  setIsLoading: (loading) =>
+    set((state) => ({
+      isLoading: loading,
+      transitionStartedAt: loading ? Date.now() : null,
+      hasLoadedOnce: state.hasLoadedOnce || !loading,
+    })),
   navigateTo: (page) => {
     const { currentPage, isLoading } = get()
     const now = Date.now()
     if (page === currentPage) {
       if (!isLoading) {
-        set({ isLoading: true, transitionStartedAt: now })
+        set((state) => ({
+          isLoading: true,
+          transitionStartedAt: now,
+          hasLoadedOnce: state.hasLoadedOnce,
+        }))
         if (transitionReleaseTimeout !== null) {
           clearTimeout(transitionReleaseTimeout)
         }
@@ -39,7 +50,7 @@ const usePageStore = create<PageStoreState>((set, get) => ({
           readyReleaseTimeout = null
         }
         transitionReleaseTimeout = setTimeout(() => {
-          set({ isLoading: false, transitionStartedAt: null })
+          set({ isLoading: false, transitionStartedAt: null, hasLoadedOnce: true })
           transitionReleaseTimeout = null
         }, TRANSITION_FAILSAFE_DURATION)
       }
@@ -59,7 +70,11 @@ const usePageStore = create<PageStoreState>((set, get) => ({
       readyReleaseTimeout = null
     }
 
-    set({ isLoading: true, transitionStartedAt: now })
+    set((state) => ({
+      isLoading: true,
+      transitionStartedAt: now,
+      hasLoadedOnce: state.hasLoadedOnce,
+    }))
 
     pageSwitchTimeout = setTimeout(() => {
       set({ currentPage: page })
@@ -67,7 +82,7 @@ const usePageStore = create<PageStoreState>((set, get) => ({
     }, SWIPE_COVER_DURATION)
 
     transitionReleaseTimeout = setTimeout(() => {
-      set({ isLoading: false, transitionStartedAt: null })
+      set({ isLoading: false, transitionStartedAt: null, hasLoadedOnce: true })
       transitionReleaseTimeout = null
     }, TRANSITION_FAILSAFE_DURATION)
   },
@@ -91,7 +106,7 @@ const usePageStore = create<PageStoreState>((set, get) => ({
     const waitForMinimum = Math.max(MIN_LOADING_DURATION - elapsed, 0)
 
     readyReleaseTimeout = setTimeout(() => {
-      set({ isLoading: false, transitionStartedAt: null })
+      set({ isLoading: false, transitionStartedAt: null, hasLoadedOnce: true })
       readyReleaseTimeout = null
     }, waitForMinimum + CONTENT_RELEASE_DELAY)
   },

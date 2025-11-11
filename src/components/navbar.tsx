@@ -29,11 +29,16 @@ function Link({ children, href }: LinkProps) {
 }
 
 export function Navbar() {
+  const { isLoading, hasLoadedOnce } = usePage()
+  const shouldHide = isLoading && !hasLoadedOnce
+
   return (
     <motion.nav
-      className="bg-background fixed right-0 left-0 z-50 md:top-0"
-      initial={{ opacity: 1 }}
-      animate={{ opacity: 1 }}
+      className="bg-background/80 backdrop-blur fixed right-0 left-0 z-60 md:top-0"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: shouldHide ? 0 : 1 }}
+      transition={{ duration: 0.4, ease: 'easeOut' }}
+      style={{ pointerEvents: shouldHide ? 'none' : 'auto' }}
     >
       <motion.div
         className="relative flex justify-between p-8 text-xl"

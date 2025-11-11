@@ -1,11 +1,120 @@
-import { useEffect } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { LoadingScreen, Navbar } from './components'
 import { usePage } from './hooks'
 import { HomePage, AboutPage, ContactPage, ProjectsPage, WorkPage } from './pages'
+import { pages as pageEntries } from 'velite'
+
+const SITE_TITLE = 'Sivert Gullberg Hansen'
+
+const PATH_TO_PAGE = new Map<string, string>([
+  ['/', 'home'],
+  ['', 'home'],
+  ['/home', 'home'],
+  ['/work', 'work'],
+  ['/projects', 'projects'],
+  ['/about', 'about'],
+  ['/contact', 'contact'],
+])
+
+function normalizePath(path: string) {
+  if (!path) return '/'
+  const trimmed = path.trim().replace(/\/+$/, '')
+  if (trimmed === '') return '/'
+  const withLeadingSlash = trimmed.startsWith('/') ? trimmed : `/${trimmed}`
+  return withLeadingSlash.toLowerCase()
+}
+
+function pageToPath(page: string) {
+  return page === 'home' ? '/' : `/${page}`
+}
+
+function pathToPage(path: string) {
+  return PATH_TO_PAGE.get(normalizePath(path)) ?? 'home'
+}
+
+function capitalize(value: string) {
+  return value.charAt(0).toUpperCase() + value.slice(1)
+}
+
+function resolveTitle(page: string, titleMap: Map<string, string>) {
+  if (page === 'home') {
+    return SITE_TITLE
+  }
+  const label = titleMap.get(page) ?? capitalize(page)
+  return `${SITE_TITLE} — ${label}`
+}
 
 function App() {
-  const { currentPage, markContentReady } = usePage()
+  const { currentPage, markContentReady, navigateTo, setCurrentPage, hasLoadedOnce } = usePage()
+  const suppressHistoryRef = useRef(true)
+  const currentPageRef = useRef(currentPage)
+
+  useEffect(() => {
+    currentPageRef.current = currentPage
+  }, [currentPage])
+
+  const titleMap = useMemo(() => {
+    const mapping = new Map<string, string>()
+    for (const page of pageEntries) {
+      if (page.slug) {
+        mapping.set(page.slug, page.title)
+      }
+    }
+    return mapping
+  }, [])
+
+  useLayoutEffect(() => {
+    const initialPage = pathToPage(window.location.pathname)
+    suppressHistoryRef.current = true
+    if (initialPage !== currentPageRef.current) {
+      setCurrentPage(initialPage)
+      currentPageRef.current = initialPage
+    }
+    const initialPath = pageToPath(initialPage)
+    const initialTitle = resolveTitle(initialPage, titleMap)
+    document.title = initialTitle
+    window.history.replaceState({ page: initialPage }, '', initialPath)
+  }, [setCurrentPage, titleMap])
+
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      const statePage =
+        typeof event.state?.page === 'string'
+          ? event.state.page
+          : pathToPage(window.location.pathname)
+      if (statePage === currentPageRef.current) {
+        suppressHistoryRef.current = true
+        return
+      }
+      suppressHistoryRef.current = true
+      navigateTo(statePage)
+    }
+
+    window.addEventListener('popstate', handlePopState)
+    return () => {
+      window.removeEventListener('popstate', handlePopState)
+    }
+  }, [navigateTo])
+
+  useEffect(() => {
+    const path = pageToPath(currentPage)
+    const title = resolveTitle(currentPage, titleMap)
+    document.title = title
+
+    if (suppressHistoryRef.current) {
+      suppressHistoryRef.current = false
+      window.history.replaceState({ page: currentPage }, '', path)
+      return
+    }
+
+    const currentPath = normalizePath(window.location.pathname)
+    if (currentPath !== normalizePath(path)) {
+      window.history.pushState({ page: currentPage }, '', path)
+    } else {
+      window.history.replaceState({ page: currentPage }, '', path)
+    }
+  }, [currentPage, titleMap, hasLoadedOnce])
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
