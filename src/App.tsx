@@ -1,18 +1,10 @@
 import { AnimatePresence, motion } from 'motion/react'
 import { LoadingScreen, Navbar } from './components'
-import { useEffect, useState } from 'react'
 import { usePage } from './hooks'
 import { HomePage, AboutPage, ContactPage } from './pages'
 
 function App() {
-  const [isLoading, setIsLoading] = useState(true)
-  const { currentPage } = usePage()
-
-  useEffect(() => {
-    setTimeout(() => {
-      setIsLoading(false)
-    }, 2500)
-  }, [])
+  const { currentPage, isLoading } = usePage()
 
   return (
     <AnimatePresence mode="wait">
