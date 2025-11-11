@@ -4,7 +4,7 @@ import { SEGMENTS, VIEW_BOX } from './signatureSegments'
 
 const DEFAULT_SEGMENT_DURATION = 0.9
 const DEFAULT_SEGMENT_GAP = 0
-const DEFAULT_SEGMENT_DURATIONS = [1, 0.05]
+const DEFAULT_SEGMENT_DURATIONS = [2, 0.1]
 const MOTION_EASE = [0.42, 0, 0.58, 1] as const
 const STROKE_WIDTH = 48
 
@@ -26,6 +26,7 @@ const DEFAULT_PULSE_STROKE_SCALE = 2
 type SignatureProps = {
   className?: string
   drawDelay?: number
+  enableDraw?: boolean
   segmentDuration?: number
   segmentDurations?: number[]
   segmentGap?: number
@@ -41,6 +42,7 @@ type SegmentConfig = {
   pulseStrokeWidth: number
   showPulse: boolean
   pulseFadePortion: number
+  enableDraw: boolean
 }
 
 function AnimatedSegment({
@@ -50,6 +52,7 @@ function AnimatedSegment({
   pulseStrokeWidth,
   showPulse,
   pulseFadePortion,
+  enableDraw,
 }: SegmentConfig) {
   const pathRef = useRef<SVGPathElement | null>(null)
   const pathLengthValue = useMotionValue(0)
@@ -76,13 +79,57 @@ function AnimatedSegment({
     glowYValue.set(startPoint.y)
     totalLengthValue.set(totalLength)
 
-    if (showPulse) {
-      const pulseLength = Math.max(totalLength * PULSE_LENGTH_RATIO, STROKE_WIDTH * 1.5)
-      const pulseGap = Math.max(totalLength - pulseLength, 1)
-      pulseDasharrayValue.set(`${pulseLength} ${pulseGap}`)
-    } else {
-      pulseOpacityValue.set(0)
-      pulseDasharrayValue.set('0 1')
+    let pulseAnimationControl: ReturnType<typeof animate> | null = null
+    let pulseOpacityControl: ReturnType<typeof animate> | null = null
+    let pulseStartTimeout: ReturnType<typeof setTimeout> | null = null
+
+    const configurePulse = () => {
+      if (showPulse) {
+        const pulseLength = Math.max(totalLength * PULSE_LENGTH_RATIO, STROKE_WIDTH * 1.5)
+        const pulseGap = Math.max(totalLength - pulseLength, 1)
+        pulseDasharrayValue.set(`${pulseLength} ${pulseGap}`)
+      } else {
+        pulseOpacityValue.set(0)
+        pulseDasharrayValue.set('0 1')
+      }
+    }
+
+    const startPulse = () => {
+      if (!showPulse) return
+      pulseOffsetProgressValue.set(0)
+      const clampedFadePortion = Math.min(Math.max(pulseFadePortion, 0.05), 0.95)
+      pulseOpacityControl = animate(pulseOpacityValue, [0, 1, 0], {
+        duration: PULSE_DURATION,
+        ease: 'linear',
+        times: [0, clampedFadePortion, 1],
+        repeat: Infinity,
+        repeatDelay: 0,
+        repeatType: 'loop',
+      })
+      pulseAnimationControl = animate(pulseOffsetProgressValue, [0, 1], {
+        duration: PULSE_DURATION,
+        ease: 'linear',
+        repeat: Infinity,
+        repeatDelay: 0,
+        repeatType: 'loop',
+      })
+    }
+
+    configurePulse()
+
+    if (!enableDraw) {
+      pathOpacityValue.set(1)
+      pathLengthValue.set(1)
+      glowOpacityValue.set(0)
+      startPulse()
+
+      return () => {
+        if (pulseStartTimeout) {
+          clearTimeout(pulseStartTimeout)
+        }
+        pulseAnimationControl?.stop()
+        pulseOpacityControl?.stop()
+      }
     }
 
     const pathOpacityControl = animate(pathOpacityValue, 1, {
@@ -109,31 +156,6 @@ function AnimatedSegment({
         glowYValue.set(point.y)
       },
     })
-
-    let pulseAnimationControl: ReturnType<typeof animate> | null = null
-    let pulseOpacityControl: ReturnType<typeof animate> | null = null
-    let pulseStartTimeout: ReturnType<typeof setTimeout> | null = null
-
-    const startPulse = () => {
-      if (!showPulse) return
-      pulseOffsetProgressValue.set(0)
-      const clampedFadePortion = Math.min(Math.max(pulseFadePortion, 0.05), 0.95)
-      pulseOpacityControl = animate(pulseOpacityValue, [0, 1, 0], {
-        duration: PULSE_DURATION,
-        ease: 'linear',
-        times: [0, clampedFadePortion, 1],
-        repeat: Infinity,
-        repeatDelay: 0,
-        repeatType: 'loop',
-      })
-      pulseAnimationControl = animate(pulseOffsetProgressValue, [0, 1], {
-        duration: PULSE_DURATION,
-        ease: 'linear',
-        repeat: Infinity,
-        repeatDelay: 0,
-        repeatType: 'loop',
-      })
-    }
 
     progressAnimation.finished.then(() => {
       animate(glowOpacityValue, 0, {
@@ -165,6 +187,7 @@ function AnimatedSegment({
     d,
     delay,
     duration,
+    enableDraw,
     glowOpacityValue,
     glowXValue,
     glowYValue,
@@ -223,6 +246,7 @@ function AnimatedSegment({
 export function Signature({
   className,
   drawDelay = 0,
+  enableDraw = true,
   segmentDuration = DEFAULT_SEGMENT_DURATION,
   segmentDurations = DEFAULT_SEGMENT_DURATIONS,
   segmentGap = DEFAULT_SEGMENT_GAP,
@@ -244,11 +268,20 @@ export function Signature({
         pulseStrokeWidth,
         showPulse: index === 0,
         pulseFadePortion,
+        enableDraw,
       }
       currentDelay += duration + segmentGap
       return config
     })
-  }, [drawDelay, segmentDuration, segmentDurations, segmentGap, pulseStrokeScale, pulseFadePortion])
+  }, [
+    drawDelay,
+    enableDraw,
+    segmentDuration,
+    segmentDurations,
+    segmentGap,
+    pulseStrokeScale,
+    pulseFadePortion,
+  ])
 
   return (
     <motion.svg
@@ -258,9 +291,9 @@ export function Signature({
       xmlns="http://www.w3.org/2000/svg"
       role="img"
       aria-labelledby={titleId}
-      initial={{ opacity: 0 }}
+      initial={{ opacity: enableDraw ? 0 : 1 }}
       animate={{ opacity: 1 }}
-      transition={{ delay: drawDelay, duration: 0.3 }}
+      transition={{ delay: enableDraw ? drawDelay : 0, duration: 0.3 }}
       style={{ overflow: 'visible' }}
     >
       <title id={titleId}>{title}</title>
@@ -274,6 +307,7 @@ export function Signature({
           pulseStrokeWidth={pulseStrokeWidth}
           showPulse={showPulse}
           pulseFadePortion={pulseFadePortion}
+          enableDraw={enableDraw}
         />
       ))}
     </motion.svg>
