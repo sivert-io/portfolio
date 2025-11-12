@@ -1,3 +1,6 @@
+import { motion } from 'motion/react'
+import { pageMotionProps } from './pageMotion'
+
 export function ContactPage() {
-  return <div>Contact</div>
+  return <motion.div {...pageMotionProps}>Contact</motion.div>
 }

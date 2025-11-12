@@ -1,5 +1,7 @@
+import { motion } from 'motion/react'
 import { pages, projects } from 'velite'
 import { MarkdownArticle, PageHeader } from '../components/markdown'
+import { pageMotionProps } from './pageMotion'
 
 const workCopy = pages.find((page) => page.slug === 'work')
 
@@ -17,7 +19,7 @@ export function WorkPage() {
   const highlightedProjects = sortProjects(projects).slice(0, 3)
 
   return (
-    <div className="mx-auto max-w-5xl space-y-16 px-6 pb-24 pt-24">
+    <motion.div {...pageMotionProps} className="mx-auto max-w-5xl space-y-16 px-6 pt-24 pb-24">
       {workCopy ? (
         <div className="space-y-12">
           <PageHeader title={workCopy.title} description={workCopy.description} />
@@ -47,7 +49,7 @@ export function WorkPage() {
               className="group flex h-full flex-col gap-6 rounded-3xl border border-white/10 bg-white/5 p-8 transition hover:border-white/20 hover:bg-white/10"
             >
               <div className="space-y-2">
-                <p className="text-xs uppercase tracking-[0.3em] text-white/40">
+                <p className="text-xs tracking-[0.3em] text-white/40 uppercase">
                   {project.publishedAt
                     ? new Date(project.publishedAt).toLocaleDateString()
                     : 'In progress'}
@@ -68,6 +70,6 @@ export function WorkPage() {
           ))}
         </div>
       </section>
-    </div>
+    </motion.div>
   )
 }

@@ -1,5 +1,7 @@
+import { motion } from 'motion/react'
 import { pages, projects } from 'velite'
 import { MarkdownArticle, PageHeader } from '../components/markdown'
+import { pageMotionProps } from './pageMotion'
 
 const projectsCopy = pages.find((page) => page.slug === 'projects')
 
@@ -17,7 +19,7 @@ export function ProjectsPage() {
   const orderedProjects = sortProjects(projects)
 
   return (
-    <div className="mx-auto max-w-4xl space-y-16 px-6 pt-24 pb-28">
+    <motion.div {...pageMotionProps} className="mx-auto max-w-4xl space-y-16 px-6 pt-24 pb-28">
       {projectsCopy ? (
         <div className="space-y-10">
           <PageHeader title={projectsCopy.title} description={projectsCopy.description} />
@@ -58,6 +60,6 @@ export function ProjectsPage() {
           </section>
         ))}
       </div>
-    </div>
+    </motion.div>
   )
 }
