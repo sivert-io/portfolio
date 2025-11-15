@@ -33,6 +33,7 @@ type SignatureProps = {
   title?: string
   pulseStrokeScale?: number
   pulseFadePortion?: number
+  onComplete?: () => void
 }
 
 type SegmentConfig = {
@@ -253,6 +254,7 @@ export function Signature({
   title = 'Signature logo',
   pulseStrokeScale = DEFAULT_PULSE_STROKE_SCALE,
   pulseFadePortion = DEFAULT_PULSE_FADE_PORTION,
+  onComplete,
 }: SignatureProps) {
   const titleId = useId()
 
@@ -282,6 +284,29 @@ export function Signature({
     pulseStrokeScale,
     pulseFadePortion,
   ])
+
+  useEffect(() => {
+    if (!onComplete) {
+      return
+    }
+
+    if (!enableDraw) {
+      onComplete()
+      return
+    }
+
+    const totalDuration = segments.reduce(
+      (max, segment) => Math.max(max, segment.delay + segment.duration),
+      0
+    )
+    const timeout = window.setTimeout(() => {
+      onComplete()
+    }, totalDuration * 1000)
+
+    return () => {
+      clearTimeout(timeout)
+    }
+  }, [enableDraw, onComplete, segments])
 
   return (
     <motion.svg
