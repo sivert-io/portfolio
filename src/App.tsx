@@ -89,10 +89,14 @@ function App() {
           initial={{ opacity: 0 }}
           animate={{ opacity: hoveredApp ? 1 : 0 }}
           transition={{ duration: 0.75, ease: 'easeOut' }}
-          className="flex max-w-[256px] flex-col items-center justify-center gap-2 text-center"
+          className="flex max-w-[320px] flex-col items-center justify-center gap-3 text-center"
         >
-          <p className="text-3xl font-bold">{oldHoveredApp?.name}</p>
-          <p className="text-lg font-normal">{oldHoveredApp?.description}</p>
+          <h2 className="text-2xl leading-tight font-bold tracking-tight text-white">
+            {oldHoveredApp?.name}
+          </h2>
+          <p className="text-base leading-relaxed font-normal tracking-wide text-gray-300/90">
+            {oldHoveredApp?.description}
+          </p>
         </motion.div>
       </motion.div>
     </main>
