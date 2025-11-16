@@ -19,6 +19,41 @@ const apps: AppType[] = [
     description: 'Automated tournament matches',
     image: '/mat-icon.svg',
   },
+  {
+    name: 'WebSocket Voice',
+    description: 'Voice communication through WebRTC and WebSockets',
+    image: '/webrtc-icon.svg',
+  },
+  {
+    name: 'Steam Provider Auth.js',
+    description: 'Custom Steam provider for Auth.js (NextAuth.js v5)',
+    image: '/steam-icon.svg',
+  },
+  {
+    name: 'Portfolio',
+    description: 'This portfolio website built with React, TypeScript, and Motion',
+    image: '/person-icon.svg',
+  },
+  {
+    name: 'Golf MK4 Remote Start',
+    description: 'Arduino sketch for remote starting a Volkswagen Golf GTI MK4',
+    image: '/car-icon.svg',
+  },
+  {
+    name: 'GameObject Sorter',
+    description: 'Unity tool for organizing and sorting game objects',
+    image: '/grid-icon.svg',
+  },
+  {
+    name: 'Game Development',
+    description: 'Game development projects using Godot Engine',
+    image: '/game-icon.svg',
+  },
+  {
+    name: 'Norsk Tipping',
+    description: 'Professional work for Norsk Tipping',
+    image: '/nt-icon.svg',
+  },
 ]
 
 function App() {
@@ -54,7 +89,7 @@ function App() {
           initial={{ opacity: 0 }}
           animate={{ opacity: hoveredApp ? 1 : 0 }}
           transition={{ duration: 0.75, ease: 'easeOut' }}
-          className="flex flex-col items-center justify-center gap-2"
+          className="flex max-w-[256px] flex-col items-center justify-center gap-2 text-center"
         >
           <p className="text-3xl font-bold">{oldHoveredApp?.name}</p>
           <p className="text-lg font-normal">{oldHoveredApp?.description}</p>

@@ -1,6 +1,8 @@
-import { motion, useSpring } from 'motion/react'
+import { motion } from 'motion/react'
 import { useEffect, useMemo, useRef } from 'react'
 import type { AppType } from '../packages/signature'
+import { useWheelPhysics } from '../hooks/useWheelPhysics'
+import { useWheelDrag } from '../hooks/useWheelDrag'
 
 const CARD_SIZE = 64
 
@@ -9,11 +11,9 @@ function getAppPositions(count: number, radius: number) {
   const positions = []
   for (let i = 0; i < count; i++) {
     const angle = i * angleStep
-    // The card will be centered at the computed (x, y) position.
     positions.push({
       x: Math.cos(angle) * radius,
       y: Math.sin(angle) * radius,
-      // For "outside" (offscreen) animation
       outside_x: Math.cos(angle) * (radius + CARD_SIZE) * 2,
       outside_y: Math.sin(angle) * (radius + CARD_SIZE) * 2,
     })
@@ -50,47 +50,71 @@ export function AppRing({
   }
 
   const positions = useMemo(() => getAppPositions(apps.length, radius), [apps.length, radius])
+  const containerRef = useRef<HTMLDivElement>(null)
 
-  const wheel = useSpring(-18, { stiffness: 2, damping: 1 })
-  const oppositeWheel = useSpring(18, {
-    stiffness: 320,
-    damping: 14,
-    mass: 0.6,
-    restDelta: 0.1,
-  })
+  // Wheel physics hook
+  const {
+    wheel,
+    combinedAppRotation,
+    dragging,
+    prevWheelAngle,
+    wheelVelocity,
+    lastWheelVelocity,
+    appVelocity,
+    appLean,
+    oppositeWheel,
+    stopMomentum,
+    animateMomentum,
+    normalizeAngleDiff,
+    MIN_VELOCITY_THRESHOLD,
+    MIN_DRAG_DISTANCE,
+    LEAN_MULTIPLIER,
+  } = useWheelPhysics(-18)
 
-  // --- Magnet Effect: appRing moves slightly toward cursor ---
-  // (REMOVED) Magnet Effect and its related code.
-  // --- End Magnet Effect ---
+  // Drag handlers
+  const { onPointerDown } = useWheelDrag(
+    wheel,
+    containerRef,
+    dragging,
+    prevWheelAngle,
+    wheelVelocity,
+    lastWheelVelocity,
+    appVelocity,
+    appLean,
+    oppositeWheel,
+    stopMomentum,
+    animateMomentum,
+    normalizeAngleDiff,
+    MIN_VELOCITY_THRESHOLD,
+    MIN_DRAG_DISTANCE,
+    LEAN_MULTIPLIER
+  )
 
+  // Spin-in animation when show becomes true
+  const hasAnimatedIn = useRef(false)
   useEffect(() => {
-    function rotateWheel() {
-      if (document.hasFocus()) {
-        const newRot = wheel.get() + (Math.random() > 0.5 ? 1 : -1) * 67
-        wheel.set(newRot)
-      }
+    if (show && !hasAnimatedIn.current) {
+      hasAnimatedIn.current = true
+      animateMomentum(wheel.get(), 50, 0.99, 0.5)
+    } else if (!show) {
+      hasAnimatedIn.current = false
+      stopMomentum()
     }
-
-    rotateWheel()
-
-    const interval = setInterval(() => {
-      rotateWheel()
-    }, 9000)
-    return () => clearInterval(interval)
-  }, [wheel])
-
-  useEffect(() => {
-    return wheel.on('change', (v) => oppositeWheel.set(-v))
-  }, [wheel, oppositeWheel])
+  }, [show, wheel, animateMomentum, stopMomentum])
 
   return (
-    <div className="absolute z-10">
+    <div ref={containerRef} className="absolute z-10 select-none">
+      {/* 
+        Attach pointer events to the motion.div that holds the wheel. 
+        Only start drag when show is true and if pointer is not in transition.
+      */}
       <motion.div
         style={{
           rotate: wheel,
           x: 0,
           y: 0,
         }}
+        onPointerDown={show ? onPointerDown : undefined}
       >
         {positions.map((pos, i) => {
           const shuffleIdx = shuffledIndexes.current.indexOf(i)
@@ -117,9 +141,9 @@ export function AppRing({
               style={{
                 width: CARD_SIZE,
                 height: CARD_SIZE,
-                // Center the card's center to the computed ring position
                 marginLeft: 0,
                 marginTop: 0,
+                touchAction: 'none', // Required for pointer events to behave as expected
               }}
             >
               <motion.div
@@ -129,8 +153,7 @@ export function AppRing({
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  rotate: oppositeWheel,
-                  // No special transformOrigin needed; default: center
+                  rotate: combinedAppRotation,
                 }}
               >
                 <motion.img
@@ -150,6 +173,9 @@ export function AppRing({
                   }}
                   src={apps[i].image}
                   alt={apps[i].name}
+                  draggable={false}
+                  // Prevent drag image ghost
+                  onDragStart={(e) => e.preventDefault()}
                 />
               </motion.div>
             </motion.div>
