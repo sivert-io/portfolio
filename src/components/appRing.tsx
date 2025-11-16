@@ -59,6 +59,10 @@ export function AppRing({
     restDelta: 0.1,
   })
 
+  // --- Magnet Effect: appRing moves slightly toward cursor ---
+  // (REMOVED) Magnet Effect and its related code.
+  // --- End Magnet Effect ---
+
   useEffect(() => {
     function rotateWheel() {
       if (document.hasFocus()) {
@@ -80,8 +84,14 @@ export function AppRing({
   }, [wheel, oppositeWheel])
 
   return (
-    <div className="absolute">
-      <motion.div style={{ rotate: wheel }}>
+    <div className="absolute z-10">
+      <motion.div
+        style={{
+          rotate: wheel,
+          x: 0,
+          y: 0,
+        }}
+      >
         {positions.map((pos, i) => {
           const shuffleIdx = shuffledIndexes.current.indexOf(i)
           return (
@@ -123,21 +133,24 @@ export function AppRing({
                   // No special transformOrigin needed; default: center
                 }}
               >
-                <motion.div
+                <motion.img
                   onHoverStart={() => setHoveredApp(apps[i])}
                   onHoverEnd={() => setHoveredApp(null)}
+                  onClick={() => setHoveredApp(apps[i])}
                   animate={{ scale: hoveredApp === apps[i] ? 1.5 : 1 }}
                   transition={{
                     type: 'spring',
                     stiffness: 500,
                     damping: 50,
                   }}
-                  className="rounded bg-[#7d7dff]"
+                  className="cursor-pointer"
                   style={{
                     width: CARD_SIZE,
                     height: CARD_SIZE,
                   }}
-                ></motion.div>
+                  src={apps[i].image}
+                  alt={apps[i].name}
+                />
               </motion.div>
             </motion.div>
           )

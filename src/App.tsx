@@ -5,29 +5,19 @@ import { motion } from 'motion/react'
 import type { AppType } from './packages/signature'
 const apps: AppType[] = [
   {
+    name: 'CS2 Server Manager',
+    description: 'Manage your CS2 servers with ease',
+    image: '/csm-icon.svg',
+  },
+  {
     name: 'Gryt.chat',
-    description: 'Description 1',
-    image: 'image1.jpg',
+    description: 'A chat application for your friends',
+    image: '/gryt-icon.svg',
   },
   {
     name: 'Matchzy Auto Tournament',
-    description: 'Description 2',
-    image: 'image2.jpg',
-  },
-  {
-    name: 'CS2 Server Manager',
-    description: 'Description 3',
-    image: 'image3.jpg',
-  },
-  {
-    name: 'Edition 35',
-    description: 'Description 4',
-    image: 'image4.jpg',
-  },
-  {
-    name: 'About Me',
-    description: 'Description 5',
-    image: 'image5.jpg',
+    description: 'Automated tournament matches',
+    image: '/mat-icon.svg',
   },
 ]
 
@@ -55,20 +45,20 @@ function App() {
 
       <motion.div
         initial={{ opacity: 0 }}
-        animate={showStatus ? { opacity: 1 } : { opacity: 0 }}
+        animate={{ opacity: 1 }}
         transition={{ duration: 0.75, ease: 'easeOut' }}
-        className="flex flex-col items-center justify-center gap-4"
+        className="z-10 flex flex-col items-center justify-center gap-4"
       >
-        <motion.p
+        <motion.div
+          // Fix: Use 1 (not 100%) to be fully visible
           initial={{ opacity: 0 }}
-          animate={hoveredApp ? { opacity: 1 } : { opacity: 0 }}
+          animate={{ opacity: hoveredApp ? 1 : 0 }}
           transition={{ duration: 0.75, ease: 'easeOut' }}
-          className="text-3xl font-medium"
+          className="flex flex-col items-center justify-center gap-2"
         >
-          {oldHoveredApp?.name}
-        </motion.p>
-
-        <p className="text-xs tracking-[1em] uppercase">Choose a card</p>
+          <p className="text-3xl font-bold">{oldHoveredApp?.name}</p>
+          <p className="text-lg font-normal">{oldHoveredApp?.description}</p>
+        </motion.div>
       </motion.div>
     </main>
   )

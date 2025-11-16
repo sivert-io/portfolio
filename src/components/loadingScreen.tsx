@@ -53,8 +53,8 @@ export function LoadingScreen({ setShowStatus }: { setShowStatus: (show: boolean
           className="h-auto w-[min(600px,85vw)]"
           onComplete={handleDrawComplete}
           drawDelay={0}
-          segmentDurations={[2, 0.1]}
-          segmentDelays={[0, 1.9]}
+          segmentDurations={[1.5, 0.1]}
+          segmentDelays={[0, 1.4]}
           motionEase={[0.42, 0, 0.58, 1]}
           strokeWidth={32}
           glowSize={48}
