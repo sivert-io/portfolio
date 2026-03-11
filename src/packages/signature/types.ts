@@ -37,8 +37,8 @@ export type AnimatedSegmentProps = SegmentConfig & {
   motionEase: [number, number, number, number]
 }
 
-
 export type AppType = {
+  slug: string
   name: string
   description: string
   image: string

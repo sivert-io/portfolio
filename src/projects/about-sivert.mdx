@@ -1,0 +1,38 @@
+# About Sivert
+
+This is the portfolio site itself.
+
+## Stack
+
+- React
+- TypeScript
+- Motion
+- Tailwind
+- MDX
+
+## Why MDX here?
+
+MDX lets me write project pages as content, while still using React components when needed.
+
+```ts
+const nice = true
+```
+
+The Typography plugin’s `prose` classes will make this look good automatically, including headings, paragraphs, lists, and code blocks.
+
+---
+
+## 8) About your old `post.tsx`
+
+You can delete this pattern:
+
+```tsx
+import { MDXProvider } from '@mdx-js/react'
+import Post from './post.mdx'
+
+console.log(
+  <MDXProvider>
+    <Post />
+  </MDXProvider>
+)
+```

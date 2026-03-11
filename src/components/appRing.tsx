@@ -36,12 +36,16 @@ export function AppRing({
   radius,
   setHoveredApp,
   hoveredApp,
+  onAppClick,
+  openingProjectSlug,
 }: {
   show: boolean
   apps: AppType[]
   radius: number
   setHoveredApp: (app: AppType | null) => void
   hoveredApp: AppType | null
+  onAppClick: (app: AppType) => void
+  openingProjectSlug?: string | null
 }) {
   // Stable random shuffle order
   const shuffledIndexes = useRef<number[]>([])
@@ -113,6 +117,7 @@ export function AppRing({
           rotate: wheel,
           x: 0,
           y: 0,
+          pointerEvents: show ? 'all' : 'none',
         }}
         onPointerDown={show ? onPointerDown : undefined}
       >
@@ -159,14 +164,22 @@ export function AppRing({
                 <motion.img
                   onHoverStart={() => setHoveredApp(apps[i])}
                   onHoverEnd={() => setHoveredApp(null)}
-                  onClick={() => setHoveredApp(apps[i])}
-                  animate={{ scale: hoveredApp === apps[i] ? 1.5 : 1 }}
+                  onClick={() => {
+                    if (Math.abs(wheelVelocity.current) < 0.1 && !openingProjectSlug) {
+                      onAppClick(apps[i])
+                      setHoveredApp(null)
+                    }
+                  }}
+                  animate={{
+                    scale: hoveredApp === apps[i] ? 1.5 : 1,
+                    opacity: openingProjectSlug === apps[i].slug || !openingProjectSlug ? 1 : 0,
+                  }}
                   transition={{
                     type: 'spring',
                     stiffness: 500,
                     damping: 50,
                   }}
-                  className="cursor-pointer"
+                  className={wheelVelocity.current > 0.1 ? 'cursor-grabbing' : 'cursor-pointer'}
                   style={{
                     width: CARD_SIZE,
                     height: CARD_SIZE,
@@ -175,7 +188,9 @@ export function AppRing({
                   alt={apps[i].name}
                   draggable={false}
                   // Prevent drag image ghost
-                  onDragStart={(e) => e.preventDefault()}
+                  onDragStart={(e) => {
+                    e.preventDefault()
+                  }}
                 />
               </motion.div>
             </motion.div>

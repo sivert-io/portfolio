@@ -1,0 +1,75 @@
+export const meta = {
+  title: "Gryt.chat",
+  repo: "https://github.com/gryt-chat",
+  website: "https://gryt.chat"
+}
+
+# Gryt.chat
+
+<ProjectMeta repo={meta.repo} website={meta.website} />
+
+![Gryt.chat Screenshot](/projects/gryt/hero.png)
+
+## What problem does it solve?
+
+Voice communication platforms are typically centralized and opaque.
+
+Gryt.chat explores a more flexible approach by building a voice platform powered by WebRTC and WebSockets.
+
+It focuses on:
+
+- low latency voice
+- room based communication
+- developer friendly architecture
+
+## Why I built it
+
+I wanted to explore:
+
+- WebRTC internals
+- real-time communication infrastructure
+- scalable voice architectures
+
+It also serves as the experimental foundation for other projects.
+
+## Architecture
+
+Main stack:
+
+- **React**
+- **TypeScript**
+- **WebRTC**
+- **Node.js**
+- **Go (Pion WebRTC)**
+
+Architecture overview:
+
+```
+
+React Client
+↓
+WebSocket Signaling
+↓
+WebRTC SFU
+↓
+Peer audio streams
+
+```
+
+## Key Features
+
+- real-time voice rooms
+- WebRTC peer connections
+- voice activity detection
+- multi server architecture
+- experimental SFU support
+
+## Demo
+
+<Video src="/projects/gryt/demo.mp4" />
+
+## Future Improvements
+
+- spatial audio
+- screen sharing
+- mobile clients
