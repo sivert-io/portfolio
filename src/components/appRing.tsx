@@ -137,7 +137,7 @@ export function AppRing({
                 opacity: show ? 1 : 0,
               }}
               transition={{
-                delay: shuffleIdx * 0.1,
+                delay: shuffleIdx * 0.05,
                 type: 'spring',
                 stiffness: 60,
                 damping: 10,

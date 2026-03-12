@@ -5,7 +5,7 @@ import { Signature } from '../packages/signature'
 const FADE_DELAY_MS = 500
 const FADE_DURATION = 1
 const FINAL_OPACITY = 0.5
-const FINAL_BLUR = 14
+const FINAL_BLUR = 6
 
 export function LoadingScreen({ setShowStatus }: { setShowStatus: (show: boolean) => void }) {
   const [hasDrawn, setHasDrawn] = useState(false)
@@ -50,7 +50,7 @@ export function LoadingScreen({ setShowStatus }: { setShowStatus: (show: boolean
         className="pointer-events-none absolute"
       >
         <Signature
-          className="h-auto w-[min(600px,85vw)]"
+          className="h-auto w-[min(350px,85vw)]"
           onComplete={handleDrawComplete}
           drawDelay={0}
           segmentDurations={[1.5, 0.1]}
