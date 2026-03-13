@@ -8,6 +8,27 @@ import { apps } from './projects/apps'
 import { loadProjectMdx, type ProjectModule } from './lib/projectMdx'
 import { MdArrowBack } from 'react-icons/md'
 
+const baseApps: AppType[] = [
+  {
+    description: '',
+    name: 'About me',
+    slug: 'about-me',
+    image: '/images/me.png',
+  },
+  {
+    name: 'My projects',
+    description: '',
+    slug: 'my-projects',
+    image: '/images/projects.png',
+  },
+  {
+    name: 'My career',
+    description: '',
+    slug: 'career',
+    image: '/images/career.png',
+  },
+]
+
 function App() {
   const [showStatus, setShowStatus] = useState(false)
   const [hoveredApp, setHoveredApp] = useState<AppType | null>(null)
@@ -17,6 +38,8 @@ function App() {
   const [selectedProjectModule, setSelectedProjectModule] = useState<ProjectModule | null>(null)
   const [openingProjectSlug, setOpeningProjectSlug] = useState<string | null>(null)
 
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+
   useEffect(() => {
     if (hoveredApp) {
       setOldHoveredApp(hoveredApp)
@@ -25,6 +48,14 @@ function App() {
 
   const handleOpenProject = async (app: AppType) => {
     if (openingProjectSlug) return
+
+    if (!selectedCategory) {
+      setSelectedCategory(app.slug)
+      return
+    } else if (app.slug === 'back') {
+      setSelectedCategory(null)
+      return
+    }
 
     setOpeningProjectSlug(app.slug)
 
@@ -56,47 +87,61 @@ function App() {
     <main className="fixed inset-0 overflow-hidden bg-black">
       <LoadingScreen setShowStatus={setShowStatus} />
 
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="popLayout">
         {!projectOpen ? (
-          <motion.div
-            key="wheel"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0, scale: 0.94 }}
-            transition={{ duration: 0.45, ease: 'easeInOut' }}
-            className="fixed inset-0 grid place-items-center"
-          >
-            <AppRing
-              show={showStatus}
-              apps={apps}
-              radius={256}
-              setHoveredApp={setHoveredApp}
-              hoveredApp={hoveredApp}
-              onAppClick={handleOpenProject}
-              openingProjectSlug={openingProjectSlug}
-            />
-
+          showStatus && (
             <motion.div
+              key="wheel"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.75, ease: 'easeOut' }}
-              className="z-10 flex flex-col items-center justify-center gap-4"
+              exit={{ opacity: 0, scale: 0.94 }}
+              transition={{ duration: 0.45, ease: 'easeInOut' }}
+              className="fixed inset-0 grid place-items-center"
             >
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: hoveredApp ? 1 : 0 }}
-                transition={{ duration: 0.3, ease: 'easeOut' }}
-                className="flex max-w-[320px] flex-col items-center justify-center gap-3 text-center"
-              >
-                <h2 className="text-2xl leading-tight font-bold tracking-tight text-white">
-                  {oldHoveredApp?.name}
-                </h2>
-                <p className="text-base leading-relaxed font-normal tracking-wide text-gray-300/90">
-                  {oldHoveredApp?.description}
-                </p>
-              </motion.div>
+              <AnimatePresence mode="popLayout">
+                {!selectedCategory ? (
+                  <AppRing
+                    apps={baseApps}
+                    radius={256}
+                    setHoveredApp={setHoveredApp}
+                    hoveredApp={hoveredApp}
+                    onAppClick={handleOpenProject}
+                    openingProjectSlug={openingProjectSlug}
+                  />
+                ) : (
+                  <AppRing
+                    apps={apps}
+                    radius={256}
+                    setHoveredApp={setHoveredApp}
+                    hoveredApp={hoveredApp}
+                    onAppClick={handleOpenProject}
+                    openingProjectSlug={openingProjectSlug}
+                  />
+                )}
+
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.75, ease: 'easeOut' }}
+                  className="z-10 flex flex-col items-center justify-center gap-4"
+                >
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: hoveredApp ? 1 : 0 }}
+                    transition={{ duration: 0.3, ease: 'easeOut' }}
+                    className="flex max-w-[320px] flex-col items-center justify-center gap-3 text-center"
+                  >
+                    <h2 className="text-2xl leading-tight font-bold tracking-tight text-white">
+                      {oldHoveredApp?.name}
+                    </h2>
+                    <p className="text-base leading-relaxed font-normal tracking-wide text-gray-300/90">
+                      {oldHoveredApp?.description}
+                    </p>
+                  </motion.div>
+                </motion.div>
+              </AnimatePresence>
             </motion.div>
-          </motion.div>
+          )
         ) : (
           <motion.section
             key="project"

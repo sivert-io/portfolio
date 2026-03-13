@@ -32,7 +32,6 @@ function getShuffledIndexes(length: number) {
 }
 
 export function AppRing({
-  show,
   apps,
   radius,
   setHoveredApp,
@@ -40,7 +39,6 @@ export function AppRing({
   onAppClick,
   openingProjectSlug,
 }: {
-  show: boolean
   apps: AppType[]
   radius: number
   setHoveredApp: (app: AppType | null) => void
@@ -95,50 +93,46 @@ export function AppRing({
     LEAN_MULTIPLIER
   )
 
-  // Spin-in animation when show becomes true
-  const hasAnimatedIn = useRef(false)
   useEffect(() => {
-    if (show && !hasAnimatedIn.current) {
-      hasAnimatedIn.current = true
-      animateMomentum(wheel.get(), 50, 0.99, 0.5)
-    } else if (!show) {
-      hasAnimatedIn.current = false
-      stopMomentum()
-    }
-  }, [show, wheel, animateMomentum, stopMomentum])
+    animateMomentum(wheel.get(), 50, 0.99, 0.5)
+  }, [animateMomentum, wheel])
 
   return (
-    <div ref={containerRef} className="absolute z-10 select-none">
-      {/* 
-        Attach pointer events to the motion.div that holds the wheel. 
-        Only start drag when show is true and if pointer is not in transition.
-      */}
+    <motion.div
+      key={apps.length + '_apps'}
+      ref={containerRef}
+      className="absolute z-10 select-none"
+    >
       <motion.div
         style={{
           rotate: wheel,
           x: 0,
           y: 0,
-          pointerEvents: show ? 'all' : 'none',
         }}
-        onPointerDown={show ? onPointerDown : undefined}
+        onPointerDown={onPointerDown}
       >
         {positions.map((pos, i) => {
           return (
             <motion.div
-              key={i}
+              key={apps[i].slug}
               initial={{
                 x: pos.outside_x - CARD_SIZE / 2,
                 y: pos.outside_y - CARD_SIZE / 2,
                 opacity: 0,
               }}
               animate={{
-                x: show ? pos.x - CARD_SIZE / 2 : pos.outside_x - CARD_SIZE / 2,
-                y: show ? pos.y - CARD_SIZE / 2 : pos.outside_y - CARD_SIZE / 2,
+                x: pos.x - CARD_SIZE / 2,
+                y: pos.y - CARD_SIZE / 2,
                 scale: openingProjectSlug && openingProjectSlug !== apps[i].slug ? 0.0 : 1.0,
-                opacity: show ? 1 : 0,
+                opacity: 1,
+              }}
+              exit={{
+                x: pos.outside_x - CARD_SIZE / 2,
+                y: pos.outside_y - CARD_SIZE / 2,
+                opacity: 0,
               }}
               transition={{
-                delay: !openingProjectSlug ? i * 0.05 : 0,
+                delay: i * 0.05,
                 type: 'spring',
                 stiffness: 60,
                 damping: 10,
@@ -198,6 +192,6 @@ export function AppRing({
           )
         })}
       </motion.div>
-    </div>
+    </motion.div>
   )
 }

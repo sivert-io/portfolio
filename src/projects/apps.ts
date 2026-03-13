@@ -2,6 +2,12 @@ import type { AppType } from '../packages/signature'
 
 export const apps: AppType[] = [
   {
+    slug: 'back',
+    name: 'Go back',
+    description: '',
+    image: '',
+  },
+  {
     slug: 'about-sivert',
     name: 'Portfolio',
     description:
