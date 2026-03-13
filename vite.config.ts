@@ -8,7 +8,6 @@ import remarkToc from 'remark-toc'
 import remarkFlexibleCodeTitles from 'remark-flexible-code-titles'
 
 import rehypeSlug from 'rehype-slug'
-import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import rehypePrettyCode from 'rehype-pretty-code'
 import rehypeExternalLinks from 'rehype-external-links'
 
@@ -22,7 +21,6 @@ export default defineConfig({
         remarkPlugins: [remarkGfm, remarkToc, remarkFlexibleCodeTitles],
         rehypePlugins: [
           rehypeSlug,
-          [rehypeAutolinkHeadings, { behavior: 'wrap' }],
           [
             rehypeExternalLinks,
             {

@@ -5,6 +5,7 @@ import { useWheelPhysics } from '../hooks/useWheelPhysics'
 import { useWheelDrag } from '../hooks/useWheelDrag'
 
 const CARD_SIZE = 64
+const OUTSIDE_SCALE = 0.5
 
 function getAppPositions(count: number, radius: number) {
   const angleStep = (2 * Math.PI) / count
@@ -14,8 +15,8 @@ function getAppPositions(count: number, radius: number) {
     positions.push({
       x: Math.cos(angle) * radius,
       y: Math.sin(angle) * radius,
-      outside_x: Math.cos(angle) * (radius + CARD_SIZE) * 2,
-      outside_y: Math.sin(angle) * (radius + CARD_SIZE) * 2,
+      outside_x: Math.cos(angle) * (radius + CARD_SIZE) * OUTSIDE_SCALE,
+      outside_y: Math.sin(angle) * (radius + CARD_SIZE) * OUTSIDE_SCALE,
     })
   }
   return positions
@@ -73,7 +74,7 @@ export function AppRing({
     MIN_VELOCITY_THRESHOLD,
     MIN_DRAG_DISTANCE,
     LEAN_MULTIPLIER,
-  } = useWheelPhysics(-18)
+  } = useWheelPhysics(18)
 
   // Drag handlers
   const { onPointerDown } = useWheelDrag(
@@ -122,7 +123,6 @@ export function AppRing({
         onPointerDown={show ? onPointerDown : undefined}
       >
         {positions.map((pos, i) => {
-          const shuffleIdx = shuffledIndexes.current.indexOf(i)
           return (
             <motion.div
               key={i}
@@ -134,10 +134,11 @@ export function AppRing({
               animate={{
                 x: show ? pos.x - CARD_SIZE / 2 : pos.outside_x - CARD_SIZE / 2,
                 y: show ? pos.y - CARD_SIZE / 2 : pos.outside_y - CARD_SIZE / 2,
+                scale: openingProjectSlug && openingProjectSlug !== apps[i].slug ? 0.0 : 1.0,
                 opacity: show ? 1 : 0,
               }}
               transition={{
-                delay: shuffleIdx * 0.05,
+                delay: !openingProjectSlug ? i * 0.05 : 0,
                 type: 'spring',
                 stiffness: 60,
                 damping: 10,
@@ -165,21 +166,21 @@ export function AppRing({
                   onHoverStart={() => setHoveredApp(apps[i])}
                   onHoverEnd={() => setHoveredApp(null)}
                   onClick={() => {
-                    if (Math.abs(wheelVelocity.current) < 0.1 && !openingProjectSlug) {
+                    if (!openingProjectSlug) {
                       onAppClick(apps[i])
                       setHoveredApp(null)
                     }
                   }}
                   animate={{
-                    scale: hoveredApp === apps[i] ? 1.5 : 1,
+                    scale: hoveredApp === apps[i] ? 1.25 : 1,
                     opacity: openingProjectSlug === apps[i].slug || !openingProjectSlug ? 1 : 0,
                   }}
                   transition={{
                     type: 'spring',
                     stiffness: 500,
-                    damping: 50,
+                    damping: 25,
                   }}
-                  className={wheelVelocity.current > 0.1 ? 'cursor-grabbing' : 'cursor-pointer'}
+                  className="cursor-pointer"
                   style={{
                     width: CARD_SIZE,
                     height: CARD_SIZE,

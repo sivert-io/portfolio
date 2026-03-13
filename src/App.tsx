@@ -6,6 +6,7 @@ import { ProjectContent } from './components/ProjectContent'
 import type { AppType } from './packages/signature'
 import { apps } from './projects/apps'
 import { loadProjectMdx, type ProjectModule } from './lib/projectMdx'
+import { MdArrowBack } from 'react-icons/md'
 
 function App() {
   const [showStatus, setShowStatus] = useState(false)
@@ -61,7 +62,7 @@ function App() {
             key="wheel"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0, scale: 0.94, filter: 'blur(10px)' }}
+            exit={{ opacity: 0, scale: 0.94 }}
             transition={{ duration: 0.45, ease: 'easeInOut' }}
             className="fixed inset-0 grid place-items-center"
           >
@@ -105,15 +106,16 @@ function App() {
             transition={{ duration: 0.45, ease: 'easeInOut' }}
             className="fixed inset-0 z-20 overflow-y-auto"
           >
-            <div className="mx-auto w-full max-w-4xl px-6 py-10">
+            <div className="mx-auto w-full max-w-4xl px-6 py-32">
               <button
                 onClick={handleCloseProject}
-                className="mb-8 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-white transition hover:bg-white/10"
+                className="mb-8 flex cursor-pointer items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-white transition hover:bg-white/10"
               >
-                Back
+                <MdArrowBack />
+                Go back
               </button>
 
-              <article className="prose prose-invert prose-zinc prose-headings:tracking-tight prose-a:text-white prose-a:no-underline hover:prose-a:opacity-80 prose-strong:text-white prose-code:text-white prose-pre:rounded-2xl prose-pre:border prose-pre:border-white/10 prose-img:rounded-2xl max-w-none">
+              <article className="prose prose-invert prose-zinc">
                 <ProjectContent module={selectedProjectModule} />
               </article>
             </div>

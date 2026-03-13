@@ -3,9 +3,12 @@ import { useCallback, useEffect, useState } from 'react'
 import { Signature } from '../packages/signature'
 
 const FADE_DELAY_MS = 500
-const FADE_DURATION = 1
-const FINAL_OPACITY = 0.5
-const FINAL_BLUR = 6
+const FADE_DURATION = 0.45
+const FINAL_OPACITY = 0.1
+const FINAL_BLUR = 2
+const START_SIZE = 1.25
+const END_SIZE = 0.75
+const COLOR = '#CC2936'
 
 export function LoadingScreen({ setShowStatus }: { setShowStatus: (show: boolean) => void }) {
   const [hasDrawn, setHasDrawn] = useState(false)
@@ -31,7 +34,7 @@ export function LoadingScreen({ setShowStatus }: { setShowStatus: (show: boolean
       window.clearTimeout(fadeTimeout)
       window.clearTimeout(statusTimeout)
     }
-  }, [hasDrawn])
+  }, [hasDrawn, setShowStatus])
 
   const handleDrawComplete = useCallback(() => {
     setHasDrawn(true)
@@ -40,13 +43,13 @@ export function LoadingScreen({ setShowStatus }: { setShowStatus: (show: boolean
   return (
     <div className="fixed inset-0 flex flex-col items-center justify-center overflow-hidden bg-black text-white">
       <motion.div
-        initial={{ opacity: 1, filter: 'blur(0px)' }}
+        initial={{ opacity: 1, filter: 'blur(0px)', scale: START_SIZE }}
         animate={
           isBlurred
-            ? { opacity: FINAL_OPACITY, filter: `blur(${FINAL_BLUR}px)` }
-            : { opacity: 1, filter: 'blur(0px)' }
+            ? { opacity: FINAL_OPACITY, filter: `blur(${FINAL_BLUR}px)`, scale: END_SIZE }
+            : { opacity: 1, filter: 'blur(0px)', scale: START_SIZE }
         }
-        transition={{ duration: FADE_DURATION, ease: 'easeInOut' }}
+        transition={{ type: 'spring', stiffness: 15, damping: 10 }}
         className="pointer-events-none absolute"
       >
         <Signature
@@ -58,14 +61,14 @@ export function LoadingScreen({ setShowStatus }: { setShowStatus: (show: boolean
           motionEase={[0.42, 0, 0.58, 1]}
           strokeWidth={32}
           glowSize={48}
-          glowColor="rgba(125, 125, 255, 1)"
-          glowShadow="drop-shadow(0 0 22px rgba(253, 224, 71, 0.75))"
-          pulseColor="rgba(125, 125, 255, 1)"
-          pulseFadePortion={0.3}
-          pulseDuration={4}
-          pulseDelayAfterDraw={0.25}
+          glowColor={COLOR}
+          glowShadow={`drop-shadow(0 0 12px ${COLOR})`}
+          pulseColor={COLOR}
+          pulseFadePortion={0.25}
+          pulseDuration={2.5}
+          pulseDelayAfterDraw={0.5}
           pulseLengthRatio={0.04}
-          pulseStrokeScale={3}
+          pulseStrokeScale={2}
         />
       </motion.div>
     </div>
