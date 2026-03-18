@@ -1,7 +1,10 @@
 import { animate, motion, useMotionValue, useTransform } from 'motion/react'
 import { useEffect, useId, useMemo, useRef } from 'react'
 import { SEGMENTS, VIEW_BOX } from './signatureSegments'
+import type { MotionValue } from 'motion/react'
 import type { AnimatedSegmentProps, SegmentConfig, SignatureProps } from './types'
+
+type SignatureLayerOpacity = number | MotionValue<number>
 
 function AnimatedSegment({
   d,
@@ -18,9 +21,16 @@ function AnimatedSegment({
   pulseDelayAfterDraw,
   pulseLengthRatio,
   motionEase,
-  glowSize, // Added glowSize parameter
-}: AnimatedSegmentProps & { glowSize?: number }) {
+  glowSize,
+  signatureOpacity = 1,
+  effectsOpacity = 1,
+}: AnimatedSegmentProps & {
+  glowSize?: number
+  signatureOpacity?: SignatureLayerOpacity
+  effectsOpacity?: SignatureLayerOpacity
+}) {
   const pathRef = useRef<SVGPathElement | null>(null)
+
   const pathLengthValue = useMotionValue(0)
   const pathOpacityValue = useMotionValue(0)
   const glowOpacityValue = useMotionValue(0)
@@ -30,6 +40,7 @@ function AnimatedSegment({
   const pulseOffsetProgressValue = useMotionValue(0)
   const pulseOpacityValue = useMotionValue(0)
   const pulseDasharrayValue = useMotionValue('0 1')
+
   const pulseDashoffsetValue = useTransform(pulseOffsetProgressValue, (progress) => {
     const total = totalLengthValue.get()
     return total * (1 - progress)
@@ -41,29 +52,37 @@ function AnimatedSegment({
 
     const totalLength = pathElement.getTotalLength()
     const startPoint = pathElement.getPointAtLength(0)
+
+    totalLengthValue.set(totalLength)
     glowXValue.set(startPoint.x)
     glowYValue.set(startPoint.y)
-    totalLengthValue.set(totalLength)
 
     let pulseAnimationControl: ReturnType<typeof animate> | null = null
     let pulseOpacityControl: ReturnType<typeof animate> | null = null
-    let pulseStartTimeout: ReturnType<typeof setTimeout> | null = null
+    let glowOutControl: ReturnType<typeof animate> | null = null
+    let pulseStartTimeout: number | null = null
+    let isDisposed = false
 
     const configurePulse = () => {
-      if (showPulse) {
-        const pulseLength = Math.max(totalLength * pulseLengthRatio, strokeWidth * 1.5)
-        const pulseGap = Math.max(totalLength - pulseLength, 1)
-        pulseDasharrayValue.set(`${pulseLength} ${pulseGap}`)
-      } else {
+      if (!showPulse) {
         pulseOpacityValue.set(0)
         pulseDasharrayValue.set('0 1')
+        return
       }
+
+      const pulseLength = Math.max(totalLength * pulseLengthRatio, strokeWidth * 1.5)
+      const pulseGap = Math.max(totalLength - pulseLength, 1)
+
+      pulseDasharrayValue.set(`${pulseLength} ${pulseGap}`)
     }
 
     const startPulse = () => {
-      if (!showPulse) return
+      if (!showPulse || isDisposed) return
+
       pulseOffsetProgressValue.set(0)
+
       const clampedFadePortion = Math.min(Math.max(pulseFadePortion, 0.05), 0.95)
+
       pulseOpacityControl = animate(pulseOpacityValue, [0, 1, 0], {
         duration: pulseDuration,
         ease: 'linear',
@@ -72,6 +91,7 @@ function AnimatedSegment({
         repeatDelay: 0,
         repeatType: 'loop',
       })
+
       pulseAnimationControl = animate(pulseOffsetProgressValue, [0, 1], {
         duration: pulseDuration,
         ease: 'linear',
@@ -109,14 +129,19 @@ function AnimatedSegment({
     })
 
     progressAnimation.finished.then(() => {
-      animate(glowOpacityValue, 0, {
+      if (isDisposed) return
+
+      glowOutControl = animate(glowOpacityValue, 0, {
         duration: glowOutDuration,
         ease: 'easeIn',
         onComplete: () => {
+          if (isDisposed) return
+
           pathOpacityValue.set(1)
           glowOpacityValue.set(0)
+
           if (showPulse) {
-            pulseStartTimeout = setTimeout(() => {
+            pulseStartTimeout = window.setTimeout(() => {
               startPulse()
             }, pulseDelayAfterDraw * 1000)
           }
@@ -125,12 +150,17 @@ function AnimatedSegment({
     })
 
     return () => {
+      isDisposed = true
+
       progressAnimation.stop()
       pathOpacityControl.stop()
       glowInControl.stop()
-      if (pulseStartTimeout) {
-        clearTimeout(pulseStartTimeout)
+      glowOutControl?.stop()
+
+      if (pulseStartTimeout !== null) {
+        window.clearTimeout(pulseStartTimeout)
       }
+
       pulseAnimationControl?.stop()
       pulseOpacityControl?.stop()
     }
@@ -138,66 +168,71 @@ function AnimatedSegment({
     d,
     delay,
     duration,
-    glowOpacityValue,
     glowXValue,
     glowYValue,
+    glowOpacityValue,
+    motionEase,
     pathLengthValue,
     pathOpacityValue,
     pulseDasharrayValue,
-    pulseOffsetProgressValue,
-    pulseOpacityValue,
-    pulseFadePortion,
     pulseDelayAfterDraw,
     pulseDuration,
+    pulseFadePortion,
     pulseLengthRatio,
-    strokeWidth,
-    glowColor,
-    glowShadow,
-    pulseColor,
-    motionEase,
+    pulseOffsetProgressValue,
+    pulseOpacityValue,
     showPulse,
+    strokeWidth,
     totalLengthValue,
-    glowSize, // Add to deps so it is considered
   ])
 
   return (
     <>
-      <motion.path
-        ref={pathRef}
-        d={d}
-        fill="none"
-        stroke="#E5E5E5"
-        strokeWidth={strokeWidth}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        style={{ pathLength: pathLengthValue, opacity: pathOpacityValue }}
-      />
-      <motion.circle
-        r={typeof glowSize === 'number' ? glowSize : strokeWidth * 2}
-        fill={glowColor}
-        style={{
-          translateX: glowXValue,
-          translateY: glowYValue,
-          opacity: glowOpacityValue,
-          filter: glowShadow,
-        }}
-      />
-      {showPulse ? (
+      <motion.g style={{ opacity: signatureOpacity }}>
         <motion.path
+          ref={pathRef}
           d={d}
           fill="none"
-          stroke={pulseColor}
-          strokeWidth={pulseStrokeWidth}
+          stroke="#E5E5E5"
+          strokeWidth={strokeWidth}
           strokeLinecap="round"
           strokeLinejoin="round"
           style={{
-            pathLength: 1,
-            strokeDasharray: pulseDasharrayValue,
-            strokeDashoffset: pulseDashoffsetValue,
-            opacity: pulseOpacityValue,
+            pathLength: pathLengthValue,
+            opacity: pathOpacityValue,
           }}
         />
-      ) : null}
+      </motion.g>
+
+      <motion.g style={{ opacity: effectsOpacity }}>
+        <motion.circle
+          r={typeof glowSize === 'number' ? glowSize : strokeWidth * 2}
+          fill={glowColor}
+          style={{
+            translateX: glowXValue,
+            translateY: glowYValue,
+            opacity: glowOpacityValue,
+            filter: glowShadow,
+          }}
+        />
+
+        {showPulse ? (
+          <motion.path
+            d={d}
+            fill="none"
+            stroke={pulseColor}
+            strokeWidth={pulseStrokeWidth}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            style={{
+              pathLength: 1,
+              strokeDasharray: pulseDasharrayValue,
+              strokeDashoffset: pulseDashoffsetValue,
+              opacity: pulseOpacityValue,
+            }}
+          />
+        ) : null}
+      </motion.g>
     </>
   )
 }
@@ -219,10 +254,19 @@ export function Signature({
   pulseDelayAfterDraw,
   pulseLengthRatio,
   pulseStrokeScale,
-  glowSize, // Added glowSize parameter
-}: SignatureProps & { glowSize?: number }) {
+  glowSize,
+  signatureOpacity = 1,
+  effectsOpacity = 1,
+}: SignatureProps & {
+  glowSize?: number
+  signatureOpacity?: SignatureLayerOpacity
+  effectsOpacity?: SignatureLayerOpacity
+}) {
   const titleId = useId()
 
+  /**
+   * Builds the per-segment draw schedule.
+   */
   const segments = useMemo<SegmentConfig[]>(() => {
     const delays: [number, number] = [
       segmentDelays?.[0] ?? drawDelay,
@@ -231,15 +275,19 @@ export function Signature({
 
     return SEGMENTS.map((d, index) => {
       const duration = segmentDurations[index] ?? segmentDurations[segmentDurations.length - 1] ?? 0
-      const config: SegmentConfig = {
+
+      return {
         d,
         delay: delays[index] ?? delays[delays.length - 1] ?? drawDelay,
         duration,
         showPulse: index === 0,
       }
-      return config
     })
   }, [drawDelay, segmentDelays, segmentDurations])
+
+  /**
+   * Total time until all signature segments are fully drawn.
+   */
   const totalDrawDuration = useMemo(() => {
     const delays: [number, number] = [
       segmentDelays?.[0] ?? drawDelay,
@@ -257,16 +305,14 @@ export function Signature({
   }, [drawDelay, segmentDelays, segmentDurations])
 
   useEffect(() => {
-    if (!onComplete) {
-      return
-    }
+    if (!onComplete) return
 
     const timeout = window.setTimeout(() => {
       onComplete()
     }, totalDrawDuration * 1000)
 
     return () => {
-      clearTimeout(timeout)
+      window.clearTimeout(timeout)
     }
   }, [onComplete, totalDrawDuration])
 
@@ -302,7 +348,9 @@ export function Signature({
           pulseDelayAfterDraw={pulseDelayAfterDraw}
           pulseLengthRatio={pulseLengthRatio}
           motionEase={motionEase}
-          glowSize={glowSize} // Pass glowSize to AnimatedSegment
+          glowSize={glowSize}
+          signatureOpacity={signatureOpacity}
+          effectsOpacity={effectsOpacity}
         />
       ))}
     </motion.svg>

@@ -2,12 +2,6 @@ import type { AppType } from '../packages/signature'
 
 export const apps: AppType[] = [
   {
-    slug: 'back',
-    name: 'Go back',
-    description: '',
-    image: '',
-  },
-  {
     slug: 'about-sivert',
     name: 'Portfolio',
     description:
@@ -26,7 +20,7 @@ export const apps: AppType[] = [
     name: 'Gryt.chat',
     description:
       'An experimental real-time voice platform built around WebRTC, WebSockets, and a multi-service architecture for modern server-based communication.',
-    image: '/gryt-icon.svg',
+    image: '/gryt/icon.svg',
   },
   {
     slug: 'matchzy-auto-tournament',
@@ -77,8 +71,6 @@ export const apps: AppType[] = [
       'Selected professional work focused on front-end engineering, product experience, and production-grade application development.',
     image: '/nt-icon.svg',
   },
-
-  // Strong additions from public GitHub
   {
     slug: 'matchzy-overtime-manager',
     name: 'Matchzy Overtime Manager',

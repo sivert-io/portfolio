@@ -98,7 +98,7 @@ export function useWheelDrag(
     oppositeWheel.set(-wheelAngle)
   }
 
-  function onPointerUp(_e: PointerEvent) {
+  function onPointerUp() {
     dragging.current = false
     window.removeEventListener('pointermove', onPointerMove)
     window.removeEventListener('pointerup', onPointerUp)
@@ -132,4 +132,3 @@ export function useWheelDrag(
 
   return { onPointerDown }
 }
-

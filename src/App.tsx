@@ -1,44 +1,112 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
+import { useNavigate, useParams } from 'react-router-dom'
+
 import { LoadingScreen } from './components'
 import { AppRing } from './components/appRing'
 import { ProjectContent } from './components/ProjectContent'
 import type { AppType } from './packages/signature'
 import { apps } from './projects/apps'
 import { loadProjectMdx, type ProjectModule } from './lib/projectMdx'
-import { MdArrowBack } from 'react-icons/md'
 
 const baseApps: AppType[] = [
   {
-    description: '',
+    description: 'A more personal page about my background, interests, and how I like to work.',
     name: 'About me',
     slug: 'about-me',
-    image: '/images/me.png',
+    image: '',
   },
   {
     name: 'My projects',
-    description: '',
-    slug: 'my-projects',
-    image: '/images/projects.png',
+    description: 'A collection of projects, experiments, tools, and product work.',
+    slug: 'projects',
+    image: '',
   },
   {
     name: 'My career',
-    description: '',
+    description: 'A timeline of education, research, work experience, and milestones.',
     slug: 'career',
-    image: '/images/career.png',
+    image: '',
   },
 ]
 
+const standalonePages = new Set(['about-me', 'career'])
+const categoryPages = new Set(['projects'])
+
+type BackButtonProps = {
+  projectOpen: boolean
+  isProjectsRingOpen: boolean
+  onCloseProject: () => void
+}
+
+function BackButton({ projectOpen, isProjectsRingOpen, onCloseProject }: BackButtonProps) {
+  const navigate = useNavigate()
+
+  function handleBack() {
+    if (projectOpen) {
+      onCloseProject()
+      return
+    }
+
+    if (isProjectsRingOpen) {
+      navigate('/')
+      return
+    }
+
+    navigate('/')
+  }
+
+  const appRingStyle = 'absolute -bottom-[360px]'
+
+  return (
+    <motion.button
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.25, ease: 'easeOut' }}
+      onClick={handleBack}
+      className={
+        'cursor-pointer rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-nowrap text-white transition hover:bg-white/10' +
+        (projectOpen ? ' self-start' : ` ${appRingStyle}`)
+      }
+    >
+      Back to {projectOpen ? 'projects' : 'home'}
+    </motion.button>
+  )
+}
+
 function App() {
+  const navigate = useNavigate()
+  const { pageSlug, projectSlug } = useParams<{
+    pageSlug?: string
+    projectSlug?: string
+  }>()
+
   const [showStatus, setShowStatus] = useState(false)
   const [hoveredApp, setHoveredApp] = useState<AppType | null>(null)
   const [oldHoveredApp, setOldHoveredApp] = useState<AppType | null>(null)
 
-  const [selectedProject, setSelectedProject] = useState<AppType | null>(null)
   const [selectedProjectModule, setSelectedProjectModule] = useState<ProjectModule | null>(null)
   const [openingProjectSlug, setOpeningProjectSlug] = useState<string | null>(null)
 
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+  const isProjectsRingOpen = pageSlug === 'projects' && !projectSlug
+  const isStandalonePage = !!pageSlug && standalonePages.has(pageSlug)
+  const isProjectPage = pageSlug === 'projects' && !!projectSlug
+
+  const routeValid = !pageSlug || standalonePages.has(pageSlug) || categoryPages.has(pageSlug)
+
+  const currentRingApps = isProjectsRingOpen ? apps : baseApps
+
+  const selectedProject = useMemo(() => {
+    if (isProjectPage && projectSlug) {
+      return apps.find((app) => app.slug === projectSlug) ?? null
+    }
+
+    if (isStandalonePage && pageSlug) {
+      return baseApps.find((app) => app.slug === pageSlug) ?? null
+    }
+
+    return null
+  }, [isProjectPage, isStandalonePage, pageSlug, projectSlug])
 
   useEffect(() => {
     if (hoveredApp) {
@@ -46,42 +114,99 @@ function App() {
     }
   }, [hoveredApp])
 
-  const handleOpenProject = async (app: AppType) => {
-    if (openingProjectSlug) return
-
-    if (!selectedCategory) {
-      setSelectedCategory(app.slug)
-      return
-    } else if (app.slug === 'back') {
-      setSelectedCategory(null)
-      return
+  useEffect(() => {
+    if (!routeValid) {
+      navigate('/', { replace: true })
     }
+  }, [navigate, routeValid])
 
-    setOpeningProjectSlug(app.slug)
+  useEffect(() => {
+    let cancelled = false
 
-    try {
-      const mod = await loadProjectMdx(app.slug)
-
-      if (!mod) {
-        console.error(`No MDX file found for slug: ${app.slug}`)
+    async function run() {
+      if (!selectedProject) {
+        setSelectedProjectModule(null)
+        setOpeningProjectSlug(null)
         return
       }
 
-      setSelectedProjectModule(mod)
-      setSelectedProject(app)
-    } catch (error) {
-      console.error(`Failed to load MDX for slug: ${app.slug}`, error)
-    } finally {
-      setOpeningProjectSlug(null)
+      setOpeningProjectSlug(selectedProject.slug)
+
+      try {
+        const mod = await loadProjectMdx(selectedProject.slug)
+
+        if (cancelled) return
+
+        if (!mod) {
+          console.error(`No MDX file found for slug: ${selectedProject.slug}`)
+          setSelectedProjectModule(null)
+
+          if (isProjectPage) {
+            navigate('/projects', { replace: true })
+          } else {
+            navigate('/', { replace: true })
+          }
+
+          return
+        }
+
+        setSelectedProjectModule(mod)
+      } catch (error) {
+        if (cancelled) return
+
+        console.error(`Failed to load MDX for slug: ${selectedProject.slug}`, error)
+        setSelectedProjectModule(null)
+
+        if (isProjectPage) {
+          navigate('/projects', { replace: true })
+        } else {
+          navigate('/', { replace: true })
+        }
+      } finally {
+        if (!cancelled) {
+          setOpeningProjectSlug(null)
+        }
+      }
+    }
+
+    run()
+
+    return () => {
+      cancelled = true
+    }
+  }, [isProjectPage, navigate, selectedProject])
+
+  const handleOpenProject = async (app: AppType) => {
+    if (openingProjectSlug) return
+
+    if (!pageSlug) {
+      if (app.slug === 'projects') {
+        navigate('/projects')
+        return
+      }
+
+      navigate(`/${app.slug}`)
+      return
+    }
+
+    if (pageSlug === 'projects') {
+      navigate(`/projects/${app.slug}`)
     }
   }
 
   const handleCloseProject = () => {
-    setSelectedProject(null)
-    setSelectedProjectModule(null)
+    if (isProjectPage) {
+      navigate('/projects')
+      return
+    }
+
+    navigate('/')
   }
 
   const projectOpen = !!selectedProject && !!selectedProjectModule
+  const hoveredDisplayApp = oldHoveredApp
+  const hoveredAppHasImage = !!hoveredDisplayApp?.image?.trim()
+  const selectedProjectHasImage = !!selectedProject?.image?.trim()
 
   return (
     <main className="fixed inset-0 overflow-hidden bg-black">
@@ -91,76 +216,112 @@ function App() {
         {!projectOpen ? (
           showStatus && (
             <motion.div
-              key="wheel"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0, scale: 0.94 }}
-              transition={{ duration: 0.45, ease: 'easeInOut' }}
+              key={isProjectsRingOpen ? 'ring-projects' : 'ring-root'}
+              exit={{ opacity: 0, transition: { duration: 0.2 } }}
               className="fixed inset-0 grid place-items-center"
             >
-              <AnimatePresence mode="popLayout">
-                {!selectedCategory ? (
-                  <AppRing
-                    apps={baseApps}
-                    radius={256}
-                    setHoveredApp={setHoveredApp}
-                    hoveredApp={hoveredApp}
-                    onAppClick={handleOpenProject}
-                    openingProjectSlug={openingProjectSlug}
-                  />
-                ) : (
-                  <AppRing
-                    apps={apps}
-                    radius={256}
-                    setHoveredApp={setHoveredApp}
-                    hoveredApp={hoveredApp}
-                    onAppClick={handleOpenProject}
-                    openingProjectSlug={openingProjectSlug}
+              <AnimatePresence mode="wait">
+                <AppRing
+                  key={isProjectsRingOpen ? 'projects-ring' : 'base-ring'}
+                  introKey={isProjectsRingOpen ? 'projects-ring' : 'base-ring'}
+                  isVisible={showStatus && !projectOpen}
+                  apps={currentRingApps}
+                  radius={256}
+                  setHoveredApp={setHoveredApp}
+                  hoveredApp={hoveredApp}
+                  onAppClick={handleOpenProject}
+                  openingProjectSlug={openingProjectSlug}
+                  playIntroSpin
+                />
+              </AnimatePresence>
+
+              <motion.div className="relative z-10 flex h-0 w-0 flex-col items-center justify-center gap-4">
+                {isProjectsRingOpen && (
+                  <BackButton
+                    projectOpen={projectOpen}
+                    isProjectsRingOpen={isProjectsRingOpen}
+                    onCloseProject={handleCloseProject}
                   />
                 )}
 
                 <motion.div
                   initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.75, ease: 'easeOut' }}
-                  className="z-10 flex flex-col items-center justify-center gap-4"
+                  animate={{ opacity: hoveredApp ? 1 : 0 }}
+                  transition={{ duration: 0.3, ease: 'easeOut' }}
+                  className="flex w-[360px] flex-col items-center justify-center gap-3 text-center"
                 >
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: hoveredApp ? 1 : 0 }}
-                    transition={{ duration: 0.3, ease: 'easeOut' }}
-                    className="flex max-w-[320px] flex-col items-center justify-center gap-3 text-center"
-                  >
-                    <h2 className="text-2xl leading-tight font-bold tracking-tight text-white">
-                      {oldHoveredApp?.name}
-                    </h2>
-                    <p className="text-base leading-relaxed font-normal tracking-wide text-gray-300/90">
-                      {oldHoveredApp?.description}
-                    </p>
-                  </motion.div>
+                  {hoveredDisplayApp && (
+                    <>
+                      <div className="flex items-center justify-center gap-3">
+                        {hoveredAppHasImage ? (
+                          <img
+                            src={hoveredDisplayApp.image}
+                            alt=""
+                            aria-hidden="true"
+                            className="h-10 w-10 rounded-xl object-contain"
+                            draggable={false}
+                          />
+                        ) : null}
+
+                        <h2 className="text-2xl leading-tight font-bold tracking-tight text-white">
+                          {hoveredDisplayApp.name}
+                        </h2>
+                      </div>
+
+                      <p className="text-base leading-relaxed font-normal tracking-wide text-gray-300/90">
+                        {hoveredDisplayApp.description}
+                      </p>
+                    </>
+                  )}
                 </motion.div>
-              </AnimatePresence>
+              </motion.div>
             </motion.div>
           )
         ) : (
           <motion.section
-            key="project"
-            initial={{ opacity: 0, y: 24 }}
+            key={selectedProject.slug}
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 24 }}
-            transition={{ duration: 0.45, ease: 'easeInOut' }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25, ease: 'easeInOut' }}
             className="fixed inset-0 z-20 overflow-y-auto"
           >
-            <div className="mx-auto w-full max-w-4xl px-6 py-32">
-              <button
-                onClick={handleCloseProject}
-                className="mb-8 flex cursor-pointer items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-white transition hover:bg-white/10"
-              >
-                <MdArrowBack />
-                Go back
-              </button>
+            <div className="mx-auto flex w-fit flex-col gap-4 px-6 py-32">
+              <BackButton
+                projectOpen={projectOpen}
+                isProjectsRingOpen={isProjectsRingOpen}
+                onCloseProject={handleCloseProject}
+              />
 
-              <article className="prose prose-invert prose-zinc">
+              {selectedProject && (
+                <div className="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 px-5 py-4">
+                  {selectedProjectHasImage ? (
+                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/5 p-2">
+                      <img
+                        src={selectedProject.image}
+                        alt=""
+                        aria-hidden="true"
+                        className="h-full w-full rounded-xl object-contain"
+                        draggable={false}
+                      />
+                    </div>
+                  ) : null}
+
+                  <div className="min-w-0">
+                    <h1 className="text-3xl font-bold tracking-tight text-white">
+                      {selectedProject.name}
+                    </h1>
+
+                    {selectedProject.description ? (
+                      <p className="mt-1 text-sm leading-relaxed text-white/70">
+                        {selectedProject.description}
+                      </p>
+                    ) : null}
+                  </div>
+                </div>
+              )}
+
+              <article className="prose prose-invert prose-zinc lg:prose-xl w-full max-w-[1200px] rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/70 backdrop-blur-sm">
                 <ProjectContent module={selectedProjectModule} />
               </article>
             </div>

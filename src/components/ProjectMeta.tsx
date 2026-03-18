@@ -7,6 +7,8 @@ type GitHubStats = {
 }
 
 type ProjectMetaProps = {
+  title: string
+  slug: string
   repo?: string
   website?: string
 }
@@ -25,14 +27,14 @@ function Link({ label, href }: { label: string; href: string }) {
   )
 }
 
-export function ProjectMeta({ repo, website }: ProjectMetaProps) {
+export function ProjectMeta({ meta }: { meta: ProjectMetaProps }) {
   const [stats, setStats] = useState<GitHubStats | null>(null)
 
   const repoPath = useMemo(() => {
-    if (!repo) return null
-    const match = repo.match(/github\.com\/([^/]+\/[^/]+)/)
+    if (!meta.repo) return null
+    const match = meta.repo.match(/github\.com\/([^/]+\/[^/]+)/)
     return match?.[1] ?? null
-  }, [repo])
+  }, [meta.repo])
 
   useEffect(() => {
     if (!repoPath) return
@@ -51,21 +53,27 @@ export function ProjectMeta({ repo, website }: ProjectMetaProps) {
   }, [repoPath])
 
   return (
-    <div className="mb-6 flex flex-wrap gap-3 text-sm text-white/70">
-      {repo && <Link href={repo} label="GitHub" />}
+    <div className="flex w-full flex-col gap-4">
+      <img
+        src={`/${meta.slug}/preview.png`}
+        className="m-0! h-auto w-full overflow-hidden rounded-2xl object-cover p-0!"
+      />
+      <div className="flex flex-wrap gap-2 rounded-full border border-white/10 bg-white/5 px-2 py-2 text-sm text-white/70">
+        {meta.repo && <Link href={meta.repo} label="GitHub" />}
 
-      {website && <Link href={website} label="Homepage" />}
+        {meta.website && <Link href={meta.website} label="Homepage" />}
 
-      {stats && (
-        <>
-          <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
-            <MdStar /> {stats.stars}
-          </span>
-          <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
-            <MdForkRight /> {stats.forks}
-          </span>
-        </>
-      )}
+        {stats && (
+          <>
+            <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
+              <MdStar /> {stats.stars}
+            </span>
+            <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
+              <MdForkRight /> {stats.forks}
+            </span>
+          </>
+        )}
+      </div>
     </div>
   )
 }
