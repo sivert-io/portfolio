@@ -1,5 +1,5 @@
 import { motion } from 'motion/react'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 type AboutPhotoRotatorProps = {
   images: string[]
@@ -16,17 +16,21 @@ export function AboutPhotoRotator({
 }: AboutPhotoRotatorProps) {
   const [index, setIndex] = useState(0)
   const [loaded, setLoaded] = useState<Record<string, boolean>>({})
+  const preloadedRef = useRef<Set<string>>(new Set())
 
   useEffect(() => {
     let cancelled = false
 
-    setLoaded({})
     setIndex(0)
 
     for (const src of images) {
+      if (preloadedRef.current.has(src)) {
+        setLoaded((current) => (current[src] ? current : { ...current, [src]: true }))
+        continue
+      }
+
       const img = new Image()
       img.decoding = 'async'
-      img.loading = 'eager'
       img.src = src
 
       const markLoaded = async () => {
@@ -35,11 +39,12 @@ export function AboutPhotoRotator({
             await img.decode().catch(() => {})
           }
         } catch {
-          // ignore decode errors
+          // Ignore decoding errors
         }
 
         if (cancelled) return
 
+        preloadedRef.current.add(src)
         setLoaded((current) => {
           if (current[src]) return current
           return { ...current, [src]: true }
@@ -52,9 +57,7 @@ export function AboutPhotoRotator({
         img.onload = () => {
           void markLoaded()
         }
-        img.onerror = () => {
-          // ignore broken images so they do not block the rotator
-        }
+        img.onerror = () => {}
       }
     }
 
@@ -63,9 +66,9 @@ export function AboutPhotoRotator({
     }
   }, [images])
 
-  useEffect(() => {
-    const readyImages = images.filter((src) => loaded[src])
+  const readyImages = useMemo(() => images.filter((src) => loaded[src]), [images, loaded])
 
+  useEffect(() => {
     if (readyImages.length <= 1) return
 
     const id = window.setInterval(() => {
@@ -73,16 +76,22 @@ export function AboutPhotoRotator({
     }, intervalMs)
 
     return () => window.clearInterval(id)
-  }, [images, loaded, intervalMs])
+  }, [readyImages.length, intervalMs])
 
-  const readyImages = images.filter((src) => loaded[src])
+  useEffect(() => {
+    if (readyImages.length === 0) return
+    if (index >= readyImages.length) {
+      setIndex(0)
+    }
+  }, [index, readyImages.length])
+
   const showSkeleton = images.length > 0 && readyImages.length === 0
 
   return (
     <div className={`relative h-full w-full overflow-hidden ${className}`}>
       {showSkeleton && (
         <div className="absolute inset-0 overflow-hidden bg-white/5">
-          <div className="absolute inset-0 animate-pulse bg-white/6" />
+          <div className="absolute inset-0 animate-pulse bg-white/[0.06]" />
           <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.8s_infinite] bg-linear-to-r from-transparent via-white/10 to-transparent" />
         </div>
       )}
@@ -105,9 +114,7 @@ export function AboutPhotoRotator({
               scale: isActive ? 1 : 1.025,
             }}
             transition={{ duration: 0.4, ease: 'easeOut' }}
-            style={{
-              pointerEvents: 'none',
-            }}
+            style={{ pointerEvents: 'none' }}
           />
         )
       })}
