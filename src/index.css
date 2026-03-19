@@ -29,6 +29,12 @@
     color: var(--color-foreground);
   }
 
+  @keyframes shimmer {
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
   body {
     min-height: 100%;
     background-color: transparent;

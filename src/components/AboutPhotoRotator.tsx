@@ -76,25 +76,34 @@ export function AboutPhotoRotator({
     }
   }, [index, readyImages.length])
 
-  if (readyImages.length === 0) return null
+  const showSkeleton = images.length > 0 && readyImages.length === 0
 
   return (
     <div className={`relative h-full w-full overflow-hidden ${className}`}>
-      <AnimatePresence mode="wait" initial={false}>
-        <motion.img
-          key={readyImages[index]}
-          src={readyImages[index]}
-          alt={alt}
-          loading="eager"
-          decoding="async"
-          draggable={false}
-          initial={{ opacity: 0, scale: 1.025 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.4, ease: 'easeOut' }}
-          className="absolute inset-0 h-full w-full object-cover"
-        />
-      </AnimatePresence>
+      {showSkeleton && (
+        <div className="rounded-inherit absolute inset-0 overflow-hidden bg-white/5">
+          <div className="absolute inset-0 animate-pulse bg-white/6" />
+          <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.8s_infinite] bg-linear-to-r from-transparent via-white/10 to-transparent" />
+        </div>
+      )}
+
+      {readyImages.length > 0 && (
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.img
+            key={readyImages[index]}
+            src={readyImages[index]}
+            alt={alt}
+            loading="eager"
+            decoding="async"
+            draggable={false}
+            initial={{ opacity: 0, scale: 1.025 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4, ease: 'easeOut' }}
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        </AnimatePresence>
+      )}
     </div>
   )
 }

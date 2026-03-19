@@ -290,7 +290,7 @@ function App() {
             transition={{ duration: 0.25, ease: 'easeInOut' }}
             className="fixed inset-0 z-20 overflow-y-auto"
           >
-            <div className="mx-auto flex w-fit flex-col gap-4 px-6 py-32">
+            <div className="mx-auto flex w-fit flex-col gap-4 p-6 md:py-32">
               <BackButton
                 projectOpen={projectOpen}
                 isProjectsRingOpen={isProjectsRingOpen}

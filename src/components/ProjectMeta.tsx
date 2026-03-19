@@ -12,6 +12,7 @@ type ProjectMetaProps = {
   slug: string
   repo?: string
   website?: string
+  previewImage?: string
 }
 
 function Link({ label, href, Icon }: { label: string; href: string; Icon?: IconType }) {
@@ -41,7 +42,12 @@ export function ProjectMeta({ meta }: { meta: ProjectMetaProps }) {
     if (!repoPath) return
 
     fetch(`https://api.github.com/repos/${repoPath}`)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`GitHub API returned ${res.status}`)
+        }
+        return res.json()
+      })
       .then((data) => {
         setStats({
           stars: data.stargazers_count ?? 0,
@@ -55,19 +61,23 @@ export function ProjectMeta({ meta }: { meta: ProjectMetaProps }) {
 
   return (
     <div className="flex w-full flex-col gap-4">
-      <img
-        src={`/${meta.slug}/preview.webp`}
-        className="m-0! h-auto w-full overflow-hidden rounded-2xl object-cover p-0!"
-      />
+      {meta.previewImage ? (
+        <img
+          src={meta.previewImage}
+          alt={`${meta.title} preview`}
+          className="m-0! h-auto w-full overflow-hidden rounded-2xl object-cover p-0!"
+        />
+      ) : null}
+
       <div className="flex flex-wrap gap-2 rounded-full border border-white/10 bg-white/5 px-2 py-2 text-sm text-white/70">
         {meta.website && <Link href={meta.website} label="Homepage" Icon={MdHomeFilled} />}
         {meta.repo && <Link href={meta.repo} label="GitHub" />}
         {stats && (
           <>
-            <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
               <MdStar /> {stats.stars}
             </span>
-            <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
               <MdForkRight /> {stats.forks}
             </span>
           </>
