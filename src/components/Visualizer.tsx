@@ -20,8 +20,8 @@ export const Visualizer: React.FC<VisualizerProps> = ({
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const frameRef = useRef<number>(0)
   const smoothedBarsRef = useRef<number[]>([])
-  const freqDataRef = useRef<Uint8Array | null>(null)
-  const timeDataRef = useRef<Uint8Array | null>(null)
+  const freqDataRef = useRef<Uint8Array<ArrayBuffer> | null>(null)
+  const timeDataRef = useRef<Uint8Array<ArrayBuffer> | null>(null)
   const colorRef = useRef<string>(color)
   const sizeRef = useRef({ width: 0, height: 0, dpr: 1 })
 
