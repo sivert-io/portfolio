@@ -1,14 +1,23 @@
 import { AboutPhotoRotator } from '../components/AboutPhotoRotator'
 import { Video } from '../components/Video'
+import { ExhaustAudioCard } from '../components/ExhaustAudioCard'
 
 export const aboutPhotos = [
-  '/about-me/sivert-1.png',
-  '/about-me/sivert-2.png',
-  '/about-me/sivert-3.png',
-  '/about-me/sivert-4.png',
-  '/about-me/sivert-5.png',
-  '/about-me/sivert-6.png',
-  '/about-me/sivert-7.png',
+  '/about-me/sivert-1.webp',
+  '/about-me/sivert-2.webp',
+  '/about-me/sivert-3.webp',
+  '/about-me/sivert-4.webp',
+  '/about-me/sivert-5.webp',
+  '/about-me/sivert-6.webp',
+  '/about-me/sivert-7.webp',
+]
+
+export const carPhotos = [
+  '/about-me/car-1.webp',
+  '/about-me/car-2.webp',
+  '/about-me/car-3.webp',
+  '/about-me/car-4.webp',
+  '/about-me/car-5.webp',
 ]
 
 <div className="not-prose overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-sm">
@@ -22,138 +31,135 @@ export const aboutPhotos = [
       />
     </div>
 
-    <div className="flex flex-col p-8 gap-4">
+    <div className="flex flex-col gap-4 p-8">
       <h2 className="text-3xl font-bold tracking-tight text-white md:text-4xl">
         Hey, I’m Sivert
       </h2>
 
-      <p className="text-base leading-relaxed text-white/75">
-        I like building things that last.
-      </p>
+      <div className="text-base leading-relaxed text-white/75">
+        I like building things that last—usually starting from something that annoys me enough to
+        fix. If it turns out well, I’ll publish it so others can use it too.
+      </div>
 
-      <p className="text-base leading-relaxed text-white/75">
-        Most of what I build starts with me being annoyed at something and fixing it. If it turns
-        out good, I usually publish it so others can use it too.
-      </p>
-
-      <p className="text-base leading-relaxed text-white/75">
-        I care a lot about things feeling good to use. Smooth, clean, not annoying. If I don’t
-        enjoy using it myself, I won’t ship it.
-      </p>
+      <div className="text-base leading-relaxed text-white/75">
+        I care a lot about how things feel to use. Smooth, clean, and not frustrating. If I don’t
+        enjoy using something myself, I won’t ship it.
+      </div>
     </div>
+
   </div>
 </div>
 
-## Work and how I think
+---
 
-I work as a frontend developer at Norsk Tipping.
+## Work & Approach
 
-I build product features that people actually use. It needs to work well, but I also care a lot
-about how it feels. I spend a lot of time on small details that most people won’t notice
-directly, but they feel it.
+I’m a frontend developer at Norsk Tipping, working on product features that people use daily.
 
-Most of my projects start with me having a problem and fixing it for myself. Then if it turns
-out good, I usually publish it. I don’t like gatekeeping stuff. If I’ve already solved a
-problem, others should be able to use it.
+Functionality matters, but experience matters just as much. I spend a lot of time refining details
+that most users won’t consciously notice—because those details are what make something feel fast,
+intuitive, and reliable.
 
-A good example is the tournament platform I built for LAN events. We didn’t want to sit there
-managing the tournament the entire time, so I automated it. That’s pretty much how I think in
-general. If something can be done for me, I’ll probably try to automate it.
+Most of my projects start with a problem I run into myself. I fix it, and if the result is solid,
+I’ll usually make it available to others. I don’t see much value in keeping solutions to myself
+if they can help someone else.
 
-I also don’t take commissions. I don’t want this to feel like a job outside of my actual job. I
-build because I enjoy it. If someone donates and expects something in return, I’ll usually tell
-them not to. I’d rather keep it fun than turn it into obligation.
+A good example is the tournament platform I built for LAN events. Instead of managing everything
+manually, I automated the entire flow. That mindset carries over into most of what I build—if
+something repetitive can be automated, I’ll try to remove it.
 
-And yeah, I work at my own pace. I don’t respond well to people rushing me or constantly poking
-me to do something right now.
+I don’t take commissions. I want to keep building as something I enjoy, not something driven by
+external expectations. That also means I work at my own pace and focus on quality over speed.
 
-## Background and life outside coding
+---
 
-I grew up around mountains and cabins.
+## Background
 
-My family has a proper Norwegian cabin without power, just solar, and we also have a farm in
-Gudbrandsdalen that we now take care of. I didn’t exactly grow up farming, but I’ve had to
-learn it over time. Cutting grass, maintaining land, that kind of stuff.
+I grew up around mountains, cabins, and a slower pace of life.
 
-I think that background shaped a lot of how I am. I like doing things properly instead of just
-rushing through them.
+My family has a traditional Norwegian cabin without power—just solar—and we also take care of a
+farm in Gudbrandsdalen. I didn’t grow up farming directly, but I’ve learned over time through
+hands-on work.
 
-Cars are probably my biggest hobby. Working on my car is basically therapy. I like putting on
-music and focusing on one thing. The biggest thing for me is detailing. I’m very picky about it
-and probably go a bit overkill, but I like the result. Proper wash setup, proper tools, proper
-products, clean interior, everything done right. I also go on a lot of drives with friends.
-Road trips, car meets, random drives just for fun.
+That background shaped how I approach things. I prefer doing things properly rather than rushing
+through them, whether it’s physical work or software.
 
-I also document a lot of the car stuff here:
+---
+
+## Cars & Projects
+
+Cars are my main hobby, and working on them is probably the closest thing I have to therapy. It’s
+about focusing on one thing, taking your time, and doing it right.
+
+I’m especially into detailing. I tend to go a bit overboard, but that’s part of the enjoyment—
+proper tools, proper products, and attention to every detail. The end result is what makes it
+worth it.
+
+I also spend a lot of time driving—road trips, car meets, or just going out for the sake of it.
+
+I document a lot of this here:
 [edition35.com](https://edition35.com)
 
 <div className="not-prose my-8 grid gap-4 md:grid-cols-2">
-  <figure className="overflow-hidden rounded-3xl border border-white/10 bg-white/5">
-    <img
-      src="/about-me/car-1.jpeg"
-      alt="Sivert's car"
-      className="h-[512px] w-full object-cover object-bottom"
-      draggable={false}
-    />
-  </figure>
+  <div className="aspect-square">
+    <ExhaustAudioCard />
+  </div>
 
-  <figure className="overflow-hidden rounded-3xl border border-white/10 bg-white/5">
-    <img
-      src="/about-me/car-2.jpeg"
-      alt="Another photo of Sivert's car"
-      className="h-[512px] w-full object-cover"
-      draggable={false}
+  <div className="overflow-hidden rounded-3xl border border-white/10 bg-white/5 aspect-square">
+    <AboutPhotoRotator
+      images={carPhotos}
+      alt="Photos of Sivert's car"
+      intervalMs={5000}
+      className="h-full w-full"
     />
-  </figure>
+  </div>
 </div>
 
-Music has also been a big part of my life for a long time. I’ve been playing instruments since I
-was young. I mostly learned guitar from YouTube, then later had a teacher. I also play piano
-and make music in FL Studio. For me it’s mostly just a way to get things out of my head. I
-listen to a lot of heavier stuff like metal and metalcore, but I’ve also made a lot of EDM.
+---
+
+## Music
+
+Music has been a big part of my life for as long as I can remember.
+
+I started out learning on my own through YouTube, and later worked with a teacher. I play both
+guitar and piano, and I also produce music in FL Studio.
+
+For me, it’s mainly a creative outlet—a way to process ideas and clear my head. I listen to a lot
+of metal and metalcore, but I’ve also produced EDM.
 
 <div className="not-prose my-8 grid gap-4 md:grid-cols-2">
   <div className="overflow-hidden rounded-3xl border border-white/10 bg-white/5 aspect-square">
-    <Video src="/about-me/guitar.mp4" controls className="h-full w-full object-cover" />
+    <Video src="/about-me/guitar.webm" controls className="h-full w-full object-cover" />
   </div>
 
   <div className="overflow-hidden rounded-3xl border border-white/10 bg-white/5 aspect-square">
-    <Video src="/about-me/piano.mp4" controls className="h-full w-full object-cover" />
+    <Video src="/about-me/piano.webm" controls className="h-full w-full object-cover" />
   </div>
 </div>
 
-I’ve also been gaming pretty much my whole life. Mostly Counter-Strike since around 2010. I
-also like strategy and adventure games like Age of Empires. I watch anime and read manga too.
-Hunter x Hunter is my favorite, and lately I’ve been reading Berserk.
+---
 
-I also really like motorcycles and plan on getting a cruiser at some point. Not really into the
-whole Harley thing, I just want something that looks good and sounds good. Long-term I want a
-house with a garage I can turn into a proper workshop.
+## Interests
 
-## Other random stuff
+I’ve been gaming most of my life, especially Counter-Strike since around 2010.
 
-I build a lot of random side projects. Some of them turn into real tools, some of them don’t.
-If I get bored, I move on.
+I also enjoy strategy and adventure games like Age of Empires. Outside of games, I watch anime
+and read manga—Hunter x Hunter is a favorite, and lately I’ve been reading Berserk.
+
+I’m also interested in motorcycles and plan to get a cruiser at some point. Long-term, I’d like to
+have a house with a garage that I can turn into a proper workshop.
+
+---
+
+## Side Projects
+
+I build a lot of side projects—some become real tools, others don’t. If something stops being
+interesting, I move on.
 
 - Gryt
-- tournament automation tools
-- AI stuff
-- game dev
+- Tournament automation tools
+- AI-related projects
+- Game development
 
-Almost everything I know comes from YouTube. Coding, music, cars, all of it. I usually just try
-things until they work.
-
-As a person, I’m easy to talk to. I like joking around and keeping things relaxed, but I take my
-work seriously.
-
-And yeah, this is from the car.
-
-<div className="not-prose my-8 flex justify-center">
-  <div className="overflow-hidden rounded-3xl border border-white/10 bg-white/5">
-    <Video
-      src="/about-me/exhaust.mp4"
-      controls
-      className="max-h-[600px] w-auto"
-    />
-  </div>
-</div>
+Most of what I know comes from experimenting and learning online. I tend to figure things out by
+building and iterating rather than following a strict path.

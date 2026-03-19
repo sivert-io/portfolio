@@ -8,25 +8,26 @@ import { ProjectContent } from './components/ProjectContent'
 import type { AppType } from './packages/signature'
 import { apps } from './projects/apps'
 import { loadProjectMdx, type ProjectModule } from './lib/projectMdx'
+import { MdFolder, MdPerson, MdSchool } from 'react-icons/md'
 
 const baseApps: AppType[] = [
   {
     description: 'A more personal page about my background, interests, and how I like to work.',
     name: 'About me',
     slug: 'about-me',
-    image: '',
+    icon: MdPerson,
   },
   {
     name: 'My projects',
     description: 'A collection of projects, experiments, tools, and product work.',
     slug: 'projects',
-    image: '',
+    icon: MdFolder,
   },
   {
     name: 'My career',
     description: 'A timeline of education, research, work experience, and milestones.',
     slug: 'career',
-    image: '',
+    icon: MdSchool,
   },
 ]
 

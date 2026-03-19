@@ -1,3 +1,5 @@
+import type { IconType } from 'react-icons/lib'
+
 export type SignatureProps = {
   className?: string
   title?: string
@@ -41,5 +43,6 @@ export type AppType = {
   slug: string
   name: string
   description: string
-  image: string
+  image?: string
+  icon?: IconType
 }

@@ -241,7 +241,7 @@ export function AppRing({
                   }
                 }}
               >
-                {app.image.length > 1 ? (
+                {app.image ? (
                   <motion.img
                     className="pointer-events-none rounded-2xl"
                     src={app.image}
@@ -251,6 +251,8 @@ export function AppRing({
                       e.preventDefault()
                     }}
                   />
+                ) : app.icon ? (
+                  <app.icon size="32px" />
                 ) : (
                   <motion.p>{app.name}</motion.p>
                 )}
