@@ -18,60 +18,95 @@ export const Visualizer: React.FC<VisualizerProps> = ({
   color = 'var(--accent-9)',
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const drawVisualRef = useRef<number>(0)
+  const frameRef = useRef<number>(0)
   const smoothedBarsRef = useRef<number[]>([])
+  const freqDataRef = useRef<Uint8Array | null>(null)
+  const timeDataRef = useRef<Uint8Array | null>(null)
+  const colorRef = useRef<string>(color)
+  const sizeRef = useRef({ width: 0, height: 0, dpr: 1 })
 
-  const resizeCanvas = useCallback((canvas: HTMLCanvasElement) => {
+  const resizeCanvas = useCallback(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+
     const rect = canvas.getBoundingClientRect()
     const dpr = window.devicePixelRatio || 1
 
-    canvas.width = Math.max(1, Math.floor(rect.width * dpr))
-    canvas.height = Math.max(1, Math.floor(rect.height * dpr))
+    const displayWidth = Math.max(1, Math.floor(rect.width))
+    const displayHeight = Math.max(1, Math.floor(rect.height))
+    const pixelWidth = Math.max(1, Math.floor(displayWidth * dpr))
+    const pixelHeight = Math.max(1, Math.floor(displayHeight * dpr))
+
+    if (
+      sizeRef.current.width === displayWidth &&
+      sizeRef.current.height === displayHeight &&
+      sizeRef.current.dpr === dpr &&
+      canvas.width === pixelWidth &&
+      canvas.height === pixelHeight
+    ) {
+      return
+    }
+
+    canvas.width = pixelWidth
+    canvas.height = pixelHeight
 
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    ctx.setTransform(1, 0, 0, 1, 0, 0)
-    ctx.scale(dpr, dpr)
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+
+    sizeRef.current = {
+      width: displayWidth,
+      height: displayHeight,
+      dpr,
+    }
   }, [])
 
-  const visualize = useCallback(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-
-    const canvasCtx = canvas.getContext('2d')
-    if (!canvasCtx) return
-
-    const effectiveColor = resolveColor(color, canvas.closest('.radix-themes') as HTMLElement)
-
+  useEffect(() => {
     analyser.fftSize = 128
     analyser.smoothingTimeConstant = 0.88
 
+    const bufferLength = analyser.frequencyBinCount
+    freqDataRef.current = new Uint8Array(bufferLength)
+    timeDataRef.current = new Uint8Array(bufferLength)
+    smoothedBarsRef.current = new Array(bufferLength).fill(0)
+  }, [analyser])
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+
+    colorRef.current = resolveColor(color, canvas.closest('.radix-themes') as HTMLElement | null)
+  }, [color])
+
+  useEffect(() => {
+    resizeCanvas()
+
+    const canvas = canvasRef.current
+    if (!canvas) return
+
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
     const draw = () => {
-      drawVisualRef.current = requestAnimationFrame(draw)
+      frameRef.current = requestAnimationFrame(draw)
 
-      resizeCanvas(canvas)
+      const { width: WIDTH, height: HEIGHT } = sizeRef.current
+      if (!WIDTH || !HEIGHT) return
 
-      const WIDTH = canvas.clientWidth
-      const HEIGHT = canvas.clientHeight
-      const HEIGHT_SCALE = 1.0
+      ctx.clearRect(0, 0, WIDTH, HEIGHT)
 
       const bufferLength = analyser.frequencyBinCount
-      const timeData = new Uint8Array(bufferLength)
-      const freqData = new Uint8Array(bufferLength)
-
-      if (smoothedBarsRef.current.length !== bufferLength) {
-        smoothedBarsRef.current = new Array(bufferLength).fill(0)
-      }
-
-      canvasCtx.clearRect(0, 0, WIDTH, HEIGHT)
+      const freqData = freqDataRef.current
+      const timeData = timeDataRef.current
+      if (!freqData || !timeData) return
 
       if (visualSetting === 'waveform') {
         analyser.getByteTimeDomainData(timeData)
 
-        canvasCtx.lineWidth = 2
-        canvasCtx.strokeStyle = effectiveColor
-        canvasCtx.beginPath()
+        ctx.lineWidth = 2
+        ctx.strokeStyle = colorRef.current
+        ctx.beginPath()
 
         const sliceWidth = WIDTH / bufferLength
         let x = 0
@@ -81,16 +116,16 @@ export const Visualizer: React.FC<VisualizerProps> = ({
           const y = (v * HEIGHT) / 2
 
           if (i === 0) {
-            canvasCtx.moveTo(x, y)
+            ctx.moveTo(x, y)
           } else {
-            canvasCtx.lineTo(x, y)
+            ctx.lineTo(x, y)
           }
 
           x += sliceWidth
         }
 
-        canvasCtx.lineTo(WIDTH, HEIGHT / 2)
-        canvasCtx.stroke()
+        ctx.lineTo(WIDTH, HEIGHT / 2)
+        ctx.stroke()
         return
       }
 
@@ -102,50 +137,36 @@ export const Visualizer: React.FC<VisualizerProps> = ({
       const barWidth = Math.max((WIDTH - totalGapWidth) / barCount, 1)
 
       let x = 0
+      ctx.fillStyle = colorRef.current
 
       for (let i = 0; i < barCount; i++) {
         const normalized = freqData[i] / 255
-        const target = normalized * HEIGHT * HEIGHT_SCALE
+        const target = normalized * HEIGHT
         const current = smoothedBarsRef.current[i]
         const eased = current + (target - current) * 0.16
 
         smoothedBarsRef.current[i] = eased
 
         const barHeight = Math.min(Math.max(eased, 2), HEIGHT)
-
-        canvasCtx.fillStyle = effectiveColor
-        canvasCtx.fillRect(x, HEIGHT - barHeight, barWidth, barHeight)
+        ctx.fillRect(x, HEIGHT - barHeight, barWidth, barHeight)
 
         x += barWidth + gap
       }
     }
 
     draw()
-  }, [analyser, color, resizeCanvas, visualSetting])
-
-  useEffect(() => {
-    if (drawVisualRef.current) {
-      cancelAnimationFrame(drawVisualRef.current)
-    }
-
-    visualize()
 
     const handleResize = () => {
-      const canvas = canvasRef.current
-      if (!canvas) return
-      resizeCanvas(canvas)
+      resizeCanvas()
     }
 
     window.addEventListener('resize', handleResize)
 
     return () => {
       window.removeEventListener('resize', handleResize)
-
-      if (drawVisualRef.current) {
-        cancelAnimationFrame(drawVisualRef.current)
-      }
+      cancelAnimationFrame(frameRef.current)
     }
-  }, [resizeCanvas, visualize])
+  }, [analyser, resizeCanvas, visualSetting])
 
   return <canvas ref={canvasRef} className="h-full w-full" />
 }
