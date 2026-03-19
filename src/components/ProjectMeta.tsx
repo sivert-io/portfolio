@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { MdForkRight, MdOpenInNew, MdStar } from 'react-icons/md'
+import { MdForkRight, MdHomeFilled, MdOpenInNew, MdStar } from 'react-icons/md'
 
 type GitHubStats = {
   stars: number
@@ -13,7 +13,7 @@ type ProjectMetaProps = {
   website?: string
 }
 
-function Link({ label, href }: { label: string; href: string }) {
+function Link({ label, href, Icon }: { label: string; href: string; Icon?: React.ComponentType }) {
   return (
     <a
       href={href}
@@ -21,7 +21,7 @@ function Link({ label, href }: { label: string; href: string }) {
       rel="noreferrer"
       className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 no-underline transition hover:bg-white/10"
     >
-      <MdOpenInNew />
+      {Icon ? <Icon /> : <MdOpenInNew />}
       {label}
     </a>
   )
@@ -59,10 +59,8 @@ export function ProjectMeta({ meta }: { meta: ProjectMetaProps }) {
         className="m-0! h-auto w-full overflow-hidden rounded-2xl object-cover p-0!"
       />
       <div className="flex flex-wrap gap-2 rounded-full border border-white/10 bg-white/5 px-2 py-2 text-sm text-white/70">
+        {meta.website && <Link href={meta.website} label="Homepage" Icon={MdHomeFilled} />}
         {meta.repo && <Link href={meta.repo} label="GitHub" />}
-
-        {meta.website && <Link href={meta.website} label="Homepage" />}
-
         {stats && (
           <>
             <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
