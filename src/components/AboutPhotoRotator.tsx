@@ -1,5 +1,5 @@
-import { AnimatePresence, motion } from 'motion/react'
-import { useEffect, useMemo, useState } from 'react'
+import { motion } from 'motion/react'
+import { useEffect, useState } from 'react'
 
 type AboutPhotoRotatorProps = {
   images: string[]
@@ -23,28 +23,38 @@ export function AboutPhotoRotator({
     setLoaded({})
     setIndex(0)
 
-    if (images.length === 0) return
-
-    const ordered = [images[0], ...images.slice(1)]
-
-    for (const src of ordered) {
+    for (const src of images) {
       const img = new Image()
+      img.decoding = 'async'
+      img.loading = 'eager'
+      img.src = src
 
-      const markLoaded = () => {
+      const markLoaded = async () => {
+        try {
+          if ('decode' in img) {
+            await img.decode().catch(() => {})
+          }
+        } catch {
+          // ignore decode errors
+        }
+
         if (cancelled) return
+
         setLoaded((current) => {
           if (current[src]) return current
           return { ...current, [src]: true }
         })
       }
 
-      img.onload = markLoaded
-      img.onerror = () => {}
-
-      img.src = src
-
       if (img.complete) {
-        markLoaded()
+        void markLoaded()
+      } else {
+        img.onload = () => {
+          void markLoaded()
+        }
+        img.onerror = () => {
+          // ignore broken images so they do not block the rotator
+        }
       }
     }
 
@@ -53,9 +63,9 @@ export function AboutPhotoRotator({
     }
   }, [images])
 
-  const readyImages = useMemo(() => images.filter((src) => loaded[src]), [images, loaded])
-
   useEffect(() => {
+    const readyImages = images.filter((src) => loaded[src])
+
     if (readyImages.length <= 1) return
 
     const id = window.setInterval(() => {
@@ -63,43 +73,44 @@ export function AboutPhotoRotator({
     }, intervalMs)
 
     return () => window.clearInterval(id)
-  }, [readyImages.length, intervalMs])
+  }, [images, loaded, intervalMs])
 
-  useEffect(() => {
-    if (readyImages.length === 0) return
-    if (index >= readyImages.length) {
-      setIndex(0)
-    }
-  }, [index, readyImages.length])
-
+  const readyImages = images.filter((src) => loaded[src])
   const showSkeleton = images.length > 0 && readyImages.length === 0
 
   return (
     <div className={`relative h-full w-full overflow-hidden ${className}`}>
       {showSkeleton && (
         <div className="absolute inset-0 overflow-hidden bg-white/5">
-          <div className="absolute inset-0 animate-pulse bg-white/[0.06]" />
+          <div className="absolute inset-0 animate-pulse bg-white/6" />
           <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.8s_infinite] bg-linear-to-r from-transparent via-white/10 to-transparent" />
         </div>
       )}
 
-      {readyImages.length > 0 && (
-        <AnimatePresence mode="wait" initial={false}>
+      {readyImages.map((src, i) => {
+        const isActive = i === index % readyImages.length
+
+        return (
           <motion.img
-            key={readyImages[index]}
-            src={readyImages[index]}
+            key={src}
+            src={src}
             alt={alt}
+            draggable={false}
             loading="eager"
             decoding="async"
-            draggable={false}
-            initial={{ opacity: 0, scale: 1.025 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.4, ease: 'easeOut' }}
             className="absolute inset-0 h-full w-full object-cover"
+            initial={false}
+            animate={{
+              opacity: isActive ? 1 : 0,
+              scale: isActive ? 1 : 1.025,
+            }}
+            transition={{ duration: 0.4, ease: 'easeOut' }}
+            style={{
+              pointerEvents: 'none',
+            }}
           />
-        </AnimatePresence>
-      )}
+        )
+      })}
     </div>
   )
 }

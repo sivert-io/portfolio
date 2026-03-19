@@ -2,7 +2,7 @@ import type { AppType } from '../packages/signature'
 
 export const apps: AppType[] = [
   {
-    slug: 'about-sivert',
+    slug: 'portfolio',
     name: 'Portfolio',
     description:
       'My personal site built with React, TypeScript, Motion, Tailwind, and MDX for project-driven storytelling.',
