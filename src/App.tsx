@@ -76,10 +76,13 @@ function BackButton({ projectOpen, isProjectsRingOpen, onCloseProject }: BackBut
 
 function App() {
   const navigate = useNavigate()
-  const { pageSlug, projectSlug } = useParams<{
+  const params = useParams<{
     pageSlug?: string
     projectSlug?: string
   }>()
+
+  const pageSlug = params.pageSlug ?? (params.projectSlug ? 'projects' : undefined)
+  const projectSlug = params.projectSlug
 
   const [showStatus, setShowStatus] = useState(false)
   const [hoveredApp, setHoveredApp] = useState<AppType | null>(null)
@@ -248,7 +251,7 @@ function App() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: hoveredApp ? 1 : 0 }}
                   transition={{ duration: 0.3, ease: 'easeOut' }}
-                  className="flex w-[360px] flex-col items-center justify-center gap-3 text-center"
+                  className="flex w-[360px] flex-col items-center justify-center gap-3 rounded-xl border border-white/10 px-4 py-3 text-center backdrop-blur-2xl"
                 >
                   {hoveredDisplayApp && (
                     <>
@@ -294,9 +297,9 @@ function App() {
               />
 
               {selectedProject && (
-                <div className="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 px-5 py-4">
+                <div className="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-4">
                   {selectedProjectHasImage ? (
-                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/5 p-2">
+                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/5 p-1">
                       <img
                         src={selectedProject.image}
                         alt=""
@@ -313,7 +316,7 @@ function App() {
                     </h1>
 
                     {selectedProject.description ? (
-                      <p className="mt-1 text-sm leading-relaxed text-white/70">
+                      <p className="text-sm leading-relaxed text-white/70">
                         {selectedProject.description}
                       </p>
                     ) : null}
@@ -321,7 +324,7 @@ function App() {
                 </div>
               )}
 
-              <article className="prose prose-invert prose-zinc lg:prose-xl w-full max-w-[1200px] rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/70 backdrop-blur-sm">
+              <article className="prose prose-invert prose-zinc lg:prose-xl w-full max-w-[1200px] rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white/70 backdrop-blur-sm">
                 <ProjectContent module={selectedProjectModule} />
               </article>
             </div>

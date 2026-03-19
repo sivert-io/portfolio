@@ -31,7 +31,7 @@ export function ProjectMeta({ meta }: { meta: ProjectMetaProps }) {
   const [stats, setStats] = useState<GitHubStats | null>(null)
 
   const repoPath = useMemo(() => {
-    if (!meta.repo) return null
+    if (!meta?.repo) return null
     const match = meta.repo.match(/github\.com\/([^/]+\/[^/]+)/)
     return match?.[1] ?? null
   }, [meta.repo])

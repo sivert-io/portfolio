@@ -37,11 +37,11 @@ export function PublicationList({ items }: PublicationListProps) {
       {items.map((item) => (
         <article
           key={`${item.title}-${item.year}`}
-          className="rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm"
+          className="flex flex-col gap-4 rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm"
         >
           <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-            <div className="min-w-0">
-              <div className="mb-3 flex items-center gap-3 text-white/55">
+            <div className="flex min-w-0 flex-col gap-4">
+              <div className="flex items-center gap-3 text-white/55">
                 <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-white/8 text-lg text-white">
                   <MdMenuBook />
                 </div>
@@ -60,18 +60,19 @@ export function PublicationList({ items }: PublicationListProps) {
                 </div>
               </div>
 
-              <h3 className="text-xl font-semibold tracking-tight text-white">{item.title}</h3>
+              <div className="flex flex-col gap-2">
+                <h3 className="text-xl font-semibold tracking-tight text-white">{item.title}</h3>
+                <p className="text-sm leading-relaxed text-white/60">{item.authors}</p>
+              </div>
 
-              <p className="mt-2 text-sm leading-relaxed text-white/60">{item.authors}</p>
-
-              <p className="mt-3 text-sm leading-relaxed text-white/75">
+              <p className="text-sm leading-relaxed text-white/75">
                 <span className="font-medium text-white/85">{item.venue}</span>
                 {item.pages ? ` · pp. ${item.pages}` : ''}
                 {item.publisher ? ` · ${item.publisher}` : ''}
               </p>
 
               {item.description ? (
-                <p className="mt-4 text-sm leading-relaxed text-white/72">{item.description}</p>
+                <p className="text-sm leading-relaxed text-white/72">{item.description}</p>
               ) : null}
             </div>
 
