@@ -20,37 +20,32 @@ export function AboutPhotoRotator({
   useEffect(() => {
     let cancelled = false
 
-    async function preloadAll() {
-      const entries = await Promise.all(
-        images.map(
-          (src) =>
-            new Promise<[string, boolean]>((resolve) => {
-              const img = new Image()
-              img.src = src
+    setLoaded({})
+    setIndex(0)
 
-              if (img.complete) {
-                resolve([src, true])
-                return
-              }
+    if (images.length === 0) return
 
-              img.onload = () => resolve([src, true])
-              img.onerror = () => resolve([src, false])
-            })
-        )
-      )
+    const ordered = [images[0], ...images.slice(1)]
 
-      if (cancelled) return
+    for (const src of ordered) {
+      const img = new Image()
 
-      setLoaded(
-        entries.reduce<Record<string, boolean>>((acc, [src, ok]) => {
-          if (ok) acc[src] = true
-          return acc
-        }, {})
-      )
-    }
+      const markLoaded = () => {
+        if (cancelled) return
+        setLoaded((current) => {
+          if (current[src]) return current
+          return { ...current, [src]: true }
+        })
+      }
 
-    if (images.length > 0) {
-      preloadAll()
+      img.onload = markLoaded
+      img.onerror = () => {}
+
+      img.src = src
+
+      if (img.complete) {
+        markLoaded()
+      }
     }
 
     return () => {
@@ -71,6 +66,7 @@ export function AboutPhotoRotator({
   }, [readyImages.length, intervalMs])
 
   useEffect(() => {
+    if (readyImages.length === 0) return
     if (index >= readyImages.length) {
       setIndex(0)
     }
@@ -81,8 +77,8 @@ export function AboutPhotoRotator({
   return (
     <div className={`relative h-full w-full overflow-hidden ${className}`}>
       {showSkeleton && (
-        <div className="rounded-inherit absolute inset-0 overflow-hidden bg-white/5">
-          <div className="absolute inset-0 animate-pulse bg-white/6" />
+        <div className="absolute inset-0 overflow-hidden bg-white/5">
+          <div className="absolute inset-0 animate-pulse bg-white/[0.06]" />
           <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.8s_infinite] bg-linear-to-r from-transparent via-white/10 to-transparent" />
         </div>
       )}
