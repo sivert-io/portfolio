@@ -1,0 +1,8 @@
+services:
+  front:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "5173:5173"
