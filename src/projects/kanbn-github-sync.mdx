@@ -1,0 +1,17 @@
+export const meta = {
+  title: 'Kanbn GitHub Sync',
+  slug: 'kanbn-github-sync',
+  repo: 'https://github.com/sivert-io/kanbn-github-sync',
+}
+
+<ProjectMeta meta={meta} />
+
+Kanbn GitHub Sync is an automation tool I built to synchronize GitHub issues directly into Kanbn boards with zero manual board setup. Instead of maintaining project boards by hand, the service creates boards and lists automatically, keeps issue state in sync, and maps development activity into a more usable planning workflow.
+
+What made this project interesting was that it focused on operational automation rather than just API integration. I had to design a sync model that could reliably interpret issue state, assignments, pull request activity, and labels, then translate that into meaningful Kanbn board structure and list placement. The result was a system that could keep multiple repositories organized with very little manual intervention.
+
+The project also reflects a product-minded approach to tooling. It was built to be easy to deploy with Docker, easy to configure, and practical for real team use. Features like automatic board creation, intelligent list assignment, multi-repository support, label synchronization, and configurable polling made it more than a one-off script — it became a reusable integration service.
+
+This project gave me strong experience with backend automation, API integrations, operational tooling, and designing systems that reduce repetitive workflow overhead.
+
+**Tech:** TypeScript, Node.js, Docker, GitHub API, Kanbn API, configuration-driven automation, multi-repository synchronization

@@ -1,0 +1,17 @@
+export const meta = {
+  title: 'Golf Mk4 Remote Start',
+  slug: 'golf-mk4-remote-start',
+  repo: 'https://github.com/sivert-io/GolfMk4RemoteStart',
+}
+
+<ProjectMeta meta={meta} />
+
+Golf Mk4 Remote Start is an embedded hardware project I built to enable remote vehicle start over SMS for a Volkswagen Golf Mk4 GTI. The system uses an Arduino together with a SIM module, allowing the car to receive commands remotely without relying on modern connected-car platforms.
+
+What made this project interesting was that it sat right at the boundary between software and hardware. It was not just about writing an Arduino sketch — it involved thinking through safety, physical integration, and how the system would behave in a real vehicle. That included requirements like neutral-switch handling for manual transmission safety, GSM communication, and the practical side of fitting the electronics into a usable enclosure.
+
+The project also included supporting hardware work such as enclosure and relay box design for 3D printing, which made it a more complete engineering exercise than just firmware alone. It gave me experience building something end to end: from embedded logic and hardware wiring to the physical packaging needed for real-world use.
+
+This project gave me hands-on experience with embedded development, hardware-software integration, and designing practical systems that interact with the physical world.
+
+**Tech:** Arduino, C++, GSM/SMS communication, SIM800L, embedded systems, hardware integration, 3D printing

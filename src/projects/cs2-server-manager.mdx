@@ -1,0 +1,18 @@
+export const meta = {
+  title: 'CS2 Server Manager',
+  slug: 'cs2-server-manager',
+  repo: 'https://github.com/sivert-io/cs2-server-manager',
+  website: 'https://docs.sivert.io/docs/csm',
+}
+
+<ProjectMeta meta={meta} />
+
+CS2 Server Manager is an automation platform I built for deploying and operating dedicated Counter-Strike 2 servers. The goal was to turn a tedious and fragile setup process into something repeatable, reliable, and much easier to manage at scale.
+
+The project handles multi-server deployment, plugin installation, auto-updates, persistent configuration overrides, tournament integration, logging, and day-to-day server operations through both a CLI and an interactive TUI. It was a strong exercise in building software for operators: not just making something work, but making it maintainable, safe, and practical to use in real environments.
+
+I built the project primarily in Go, with supporting Docker-based infrastructure where appropriate. It also integrates directly with the competitive CS2 ecosystem through tools like Metamod, CounterStrikeSharp, MatchZy, and tournament automation. One of the more interesting parts of the work was designing conservative update and restart behavior so the system could support live operations without disrupting active matches.
+
+This project gave me hands-on experience with backend engineering, systems automation, infrastructure design, and developer tooling focused on real operational needs.
+
+**Tech:** Go, Docker, Linux automation, CLI/TUI development, MySQL, CS2 server operations, Metamod, CounterStrikeSharp, MatchZy

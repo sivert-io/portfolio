@@ -1,0 +1,15 @@
+export const meta = {
+  title: 'Steam Provider Auth.js',
+  slug: 'steam-provider-authjs',
+  repo: 'https://github.com/sivert-io/steam-provider-auth.js',
+}
+
+<ProjectMeta meta={meta} />
+
+Steam Provider Auth.js is a custom authentication provider I built to make Steam login work with Auth.js v5. The project solves a very specific integration problem: Steam still relies on OpenID, while modern Auth.js setups — especially edge-compatible ones — expect a different shape than older Node-focused solutions were built for.
+
+What made this project interesting was that it required more than just wiring up an existing provider. I had to design a browser-compatible approach that avoided older Node-specific patterns, handle Steam’s OpenID flow cleanly, and work around the fact that Steam does not provide a traditional OAuth access token. That led to a custom verification flow and a dummy-token approach that made the integration practical inside a modern Auth.js setup.
+
+This project gave me experience working close to authentication internals, provider design, and framework constraints. It was a good example of building a focused developer tool: taking an awkward integration edge case and turning it into something reusable and easier for other developers to adopt.
+
+**Tech:** TypeScript, Auth.js, NextAuth.js v5, Next.js, OpenID, edge-compatible auth flows

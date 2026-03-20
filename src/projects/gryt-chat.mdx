@@ -8,66 +8,12 @@ export const meta = {
 
 <ProjectMeta meta={meta} />
 
-## What problem does it solve?
+Gryt Chat is an open-source, self-hosted communication platform for voice, text, and video. It was built around privacy and user ownership, with features like HD voice/video, screen sharing, multi-server support, and accessibility-focused UX.
 
-Voice communication platforms are typically centralized and opaque.
+This project was especially important for me because I designed the infrastructure and overall architecture myself. That gave me hands-on experience acting as both developer and architect: defining service boundaries, planning deployment, and designing a system that could support real-time communication reliably.
 
-Gryt.chat explores a more flexible approach by building a voice platform powered by WebRTC and WebSockets.
+From a technical perspective, Gryt combined a React/TypeScript + Electron client, a Node.js signaling layer, and a Go-based SFU for WebRTC media. I also worked with authentication and trust design using Keycloak, OIDC/PKCE, and challenge-response authentication, plus storage and deployment concerns using SQLite, MinIO/S3, Docker Compose, and Kubernetes/Helm.
 
-It focuses on:
+Gryt gave me experience in architecture, real-time systems, authentication design, and self-hosted infrastructure — not just building features, but designing how the whole platform should work.
 
-- low latency voice
-- room based communication
-- developer friendly architecture
-
-## Why I built it
-
-I wanted to explore:
-
-- WebRTC internals
-- real-time communication infrastructure
-- scalable voice architectures
-
-It also serves as the experimental foundation for other projects.
-
-## Architecture
-
-Main stack:
-
-- **React**
-- **TypeScript**
-- **WebRTC**
-- **Node.js**
-- **Go (Pion WebRTC)**
-
-Architecture overview:
-
-```
-
-React Client
-↓
-WebSocket Signaling
-↓
-WebRTC SFU
-↓
-Peer audio streams
-
-```
-
-## Key Features
-
-- real-time voice rooms
-- WebRTC peer connections
-- voice activity detection
-- multi server architecture
-- experimental SFU support
-
-## Demo
-
-<Video src="/projects/gryt/demo.webm" />
-
-## Future Improvements
-
-- spatial audio
-- screen sharing
-- mobile clients
+**Tech:** React, TypeScript, Electron, Node.js, Socket.IO, Go, WebRTC, Keycloak, OIDC/PKCE, SQLite, MinIO/S3, Docker Compose, Helm, Kubernetes

@@ -1,0 +1,18 @@
+export const meta = {
+  title: 'MatchZy Enhanced',
+  slug: 'matchzy-enhanced',
+  repo: 'https://github.com/sivert-io/MatchZy-Enhanced',
+  website: 'https://docs.sivert.io/docs/me',
+}
+
+<ProjectMeta meta={meta} />
+
+MatchZy Enhanced is a CS2 match management plugin I built to support automated tournament operations. It runs directly inside CS2 servers and extends the base MatchZy workflow with better APIs, more events, and stronger automation support, making it possible for external tools to control, track, and operate matches in real time.
+
+What made this project valuable was that it sat right in the middle of live game-server operations and platform integration. I had to think beyond the plugin itself and design it as infrastructure for other systems, with reliable event delivery, thread-safe operations, match state reporting, health monitoring, and recovery behavior that could hold up during real tournament use.
+
+The plugin also improved the player and admin experience with features like auto-ready, enhanced pause handling, side-selection timers, forfeit voting, full-team disconnect handling, and more structured match reporting. A big part of the engineering challenge was balancing operational reliability with gameplay flow, so the plugin could support both tournament automation and a smooth in-server experience.
+
+This project gave me strong experience in systems integration, event-driven design, operational reliability, and building software that bridges live servers with external platforms.
+
+**Tech:** C#, .NET, CounterStrikeSharp, CS2 server plugins, event-driven systems, real-time match tracking, tournament automation, API design

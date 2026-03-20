@@ -13,6 +13,7 @@ type ProjectMetaProps = {
   repo?: string
   website?: string
   previewImage?: string
+  previewVideo?: string
 }
 
 function Link({ label, href, Icon }: { label: string; href: string; Icon?: IconType }) {
@@ -61,7 +62,17 @@ export function ProjectMeta({ meta }: { meta: ProjectMetaProps }) {
 
   return (
     <div className="flex w-full flex-col gap-4">
-      {meta.previewImage ? (
+      {meta.previewVideo ? (
+        <video
+          src={meta.previewVideo}
+          className="m-0! h-auto w-full overflow-hidden rounded-2xl object-cover p-0!"
+          autoPlay
+          muted
+          loop
+          playsInline
+          controls={false}
+        />
+      ) : meta.previewImage ? (
         <img
           src={meta.previewImage}
           alt={`${meta.title} preview`}
