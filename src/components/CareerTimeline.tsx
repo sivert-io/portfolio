@@ -221,7 +221,7 @@ export function CareerTimeline({ items }: CareerTimelineProps) {
                           <button
                             type="button"
                             onClick={() => setSelectedItem(item)}
-                            className="cursor-pointer text-left"
+                            className="text-left"
                           >
                             <h3 className="text-lg font-semibold tracking-tight text-white transition hover:text-white/85">
                               {item.title}

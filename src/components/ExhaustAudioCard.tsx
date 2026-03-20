@@ -85,7 +85,7 @@ export function ExhaustAudioCard() {
       aria-pressed={isPlaying}
       onClick={togglePlayback}
       onKeyDown={handleKeyDown}
-      className="group flex h-full cursor-pointer flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-6 transition-colors hover:bg-white/[0.07] focus:ring-2 focus:ring-white/20 focus:outline-none"
+      className="group flex h-full flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-6 transition-colors hover:bg-white/[0.07] focus:ring-2 focus:ring-white/20 focus:outline-none"
     >
       <div className="mb-4 flex items-start justify-between gap-4">
         <div>

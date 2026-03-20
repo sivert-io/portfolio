@@ -8,7 +8,14 @@ import { ProjectContent } from './components/ProjectContent'
 import type { AppType } from './packages/signature'
 import { apps } from './projects/apps'
 import { loadProjectMdx, type ProjectModule } from './lib/projectMdx'
-import { MdFolder, MdPerson, MdSchool } from 'react-icons/md'
+import {
+  MdChevronLeft,
+  MdChevronRight,
+  MdClose,
+  MdFolder,
+  MdPerson,
+  MdSchool,
+} from 'react-icons/md'
 
 const baseApps: AppType[] = [
   {
@@ -34,6 +41,27 @@ const baseApps: AppType[] = [
 const standalonePages = new Set(['about-me', 'career'])
 const categoryPages = new Set(['projects'])
 
+const projectContentVariants = {
+  initial: (direction: 1 | -1) => ({
+    opacity: 0,
+    x: direction === 1 ? 96 : -96,
+    scale: 0.94,
+    filter: 'blur(6px)',
+  }),
+  animate: {
+    opacity: 1,
+    x: 0,
+    scale: 1,
+    filter: 'blur(0px)',
+  },
+  exit: (direction: 1 | -1) => ({
+    opacity: 0,
+    x: direction === 1 ? -96 : 96,
+    scale: 0.94,
+    filter: 'blur(6px)',
+  }),
+}
+
 type BackButtonProps = {
   projectOpen: boolean
   isProjectsRingOpen: boolean
@@ -57,21 +85,64 @@ function BackButton({ projectOpen, isProjectsRingOpen, onCloseProject }: BackBut
     navigate('/')
   }
 
-  const appRingStyle = 'absolute -bottom-[360px]'
+  const appRingStyle = 'absolute -bottom-[400px]'
 
   return (
     <motion.button
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.95 }}
       transition={{ duration: 0.25, ease: 'easeOut' }}
       onClick={handleBack}
       className={
-        'cursor-pointer rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-nowrap text-white transition hover:bg-white/10' +
-        (projectOpen ? ' self-start' : ` ${appRingStyle}`)
+        'h-fit w-fit rounded-full border border-white/15 bg-white/5 p-3 text-sm text-nowrap text-white backdrop-blur-sm transition hover:bg-white/10' +
+        (!projectOpen && ` ${appRingStyle}`)
       }
     >
-      Back to {projectOpen ? 'projects' : 'home'}
+      <MdClose size={24} />
     </motion.button>
+  )
+}
+
+function SideProjectNavButton({
+  direction,
+  onClick,
+}: {
+  direction: 'prev' | 'next'
+  onClick: () => void
+}) {
+  const Icon = direction === 'prev' ? MdChevronLeft : MdChevronRight
+
+  return (
+    <button
+      onClick={onClick}
+      className="flex h-14 w-14 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white backdrop-blur-md transition hover:bg-white/10"
+      aria-label={direction === 'prev' ? 'Previous project' : 'Next project'}
+      type="button"
+    >
+      <Icon className="text-3xl" />
+    </button>
+  )
+}
+
+function BottomProjectNavButton({
+  direction,
+  onClick,
+}: {
+  direction: 'prev' | 'next'
+  onClick: () => void
+}) {
+  const Icon = direction === 'prev' ? MdChevronLeft : MdChevronRight
+
+  return (
+    <button
+      onClick={onClick}
+      className="flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white backdrop-blur-md transition hover:bg-white/10"
+      aria-label={direction === 'prev' ? 'Previous project' : 'Next project'}
+      type="button"
+    >
+      <Icon className="text-2xl" />
+    </button>
   )
 }
 
@@ -91,6 +162,7 @@ function App() {
 
   const [selectedProjectModule, setSelectedProjectModule] = useState<ProjectModule | null>(null)
   const [openingProjectSlug, setOpeningProjectSlug] = useState<string | null>(null)
+  const [projectNavDirection, setProjectNavDirection] = useState<1 | -1>(1)
 
   const isProjectsRingOpen = pageSlug === 'projects' && !projectSlug
   const isStandalonePage = !!pageSlug && standalonePages.has(pageSlug)
@@ -111,6 +183,22 @@ function App() {
 
     return null
   }, [isProjectPage, isStandalonePage, pageSlug, projectSlug])
+
+  const projectSiblings = useMemo(() => {
+    if (!selectedProject || !isProjectPage) {
+      return { previousProject: null, nextProject: null }
+    }
+
+    const currentIndex = apps.findIndex((app) => app.slug === selectedProject.slug)
+    if (currentIndex === -1) {
+      return { previousProject: null, nextProject: null }
+    }
+
+    const previousProject = apps[(currentIndex - 1 + apps.length) % apps.length] ?? null
+    const nextProject = apps[(currentIndex + 1) % apps.length] ?? null
+
+    return { previousProject, nextProject }
+  }, [isProjectPage, selectedProject])
 
   useEffect(() => {
     if (hoveredApp) {
@@ -180,6 +268,12 @@ function App() {
     }
   }, [isProjectPage, navigate, selectedProject])
 
+  useEffect(() => {
+    if (isProjectPage && projectSlug) {
+      window.scrollTo(0, 0)
+    }
+  }, [isProjectPage, projectSlug])
+
   const handleOpenProject = async (app: AppType) => {
     if (openingProjectSlug) return
 
@@ -194,6 +288,7 @@ function App() {
     }
 
     if (pageSlug === 'projects') {
+      setProjectNavDirection(1)
       navigate(`/projects/${app.slug}`)
     }
   }
@@ -207,16 +302,29 @@ function App() {
     navigate('/')
   }
 
+  const handleGoToPreviousProject = () => {
+    if (!projectSiblings.previousProject) return
+    setProjectNavDirection(-1)
+    navigate(`/projects/${projectSiblings.previousProject.slug}`)
+  }
+
+  const handleGoToNextProject = () => {
+    if (!projectSiblings.nextProject) return
+    setProjectNavDirection(1)
+    navigate(`/projects/${projectSiblings.nextProject.slug}`)
+  }
+
   const projectOpen = !!selectedProject && !!selectedProjectModule
   const hoveredDisplayApp = oldHoveredApp
   const hoveredAppHasImage = !!hoveredDisplayApp?.image?.trim()
   const selectedProjectHasImage = !!selectedProject?.image?.trim()
+  const { previousProject, nextProject } = projectSiblings
 
   return (
-    <main className="fixed inset-0 overflow-hidden bg-black">
+    <main className="fixed inset-0 overflow-auto bg-black">
       <LoadingScreen setShowStatus={setShowStatus} />
 
-      <AnimatePresence mode="popLayout">
+      <AnimatePresence mode="wait" initial={false}>
         {!projectOpen ? (
           showStatus && (
             <motion.div
@@ -283,51 +391,84 @@ function App() {
           )
         ) : (
           <motion.section
-            key={selectedProject.slug}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
+            key="project-page"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.25, ease: 'easeInOut' }}
-            className="fixed inset-0 z-20 overflow-y-auto"
+            transition={{ duration: 0.2 }}
+            className="relative flex h-full w-full flex-col items-center gap-4"
           >
-            <div className="mx-auto flex w-fit flex-col gap-4 p-6 md:py-32">
+            <div className="relative flex w-full max-w-7xl flex-col items-end gap-4 p-4 pt-20 pb-24 md:p-6 md:pt-28 md:pb-10">
+              {previousProject ? (
+                <div className="absolute top-56 -left-16 hidden -translate-y-1/2 md:block">
+                  <SideProjectNavButton direction="prev" onClick={handleGoToPreviousProject} />
+                </div>
+              ) : null}
+
+              {nextProject ? (
+                <div className="absolute top-56 -right-16 hidden -translate-y-1/2 md:block">
+                  <SideProjectNavButton direction="next" onClick={handleGoToNextProject} />
+                </div>
+              ) : null}
               <BackButton
                 projectOpen={projectOpen}
                 isProjectsRingOpen={isProjectsRingOpen}
                 onCloseProject={handleCloseProject}
               />
+              <AnimatePresence mode="popLayout" initial={false} custom={projectNavDirection}>
+                <motion.div
+                  key={selectedProject.slug}
+                  custom={projectNavDirection}
+                  variants={projectContentVariants}
+                  initial="initial"
+                  animate="animate"
+                  exit="exit"
+                  transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                  className="flex flex-col gap-4"
+                >
+                  {selectedProject && (
+                    <div className="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-4">
+                      {selectedProjectHasImage ? (
+                        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/5 p-1">
+                          <img
+                            src={selectedProject.image}
+                            alt=""
+                            aria-hidden="true"
+                            className="h-full w-full rounded-xl object-contain"
+                            draggable={false}
+                          />
+                        </div>
+                      ) : null}
 
-              {selectedProject && (
-                <div className="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-4">
-                  {selectedProjectHasImage ? (
-                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/5 p-1">
-                      <img
-                        src={selectedProject.image}
-                        alt=""
-                        aria-hidden="true"
-                        className="h-full w-full rounded-xl object-contain"
-                        draggable={false}
-                      />
+                      <div className="min-w-0">
+                        <h1 className="text-3xl font-bold tracking-tight text-white">
+                          {selectedProject.name}
+                        </h1>
+
+                        {selectedProject.description ? (
+                          <p className="text-sm leading-relaxed text-white/70">
+                            {selectedProject.description}
+                          </p>
+                        ) : null}
+                      </div>
                     </div>
-                  ) : null}
+                  )}
 
-                  <div className="min-w-0">
-                    <h1 className="text-3xl font-bold tracking-tight text-white">
-                      {selectedProject.name}
-                    </h1>
+                  <article className="prose prose-invert prose-zinc lg:prose-xl w-full max-w-full rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white/70 backdrop-blur-sm">
+                    <ProjectContent module={selectedProjectModule} />
+                  </article>
+                </motion.div>
+              </AnimatePresence>
 
-                    {selectedProject.description ? (
-                      <p className="text-sm leading-relaxed text-white/70">
-                        {selectedProject.description}
-                      </p>
-                    ) : null}
-                  </div>
-                </div>
-              )}
+              <div className="flex gap-4 md:hidden">
+                {previousProject ? (
+                  <BottomProjectNavButton direction="prev" onClick={handleGoToPreviousProject} />
+                ) : null}
 
-              <article className="prose prose-invert prose-zinc lg:prose-xl w-full max-w-[1200px] rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white/70 backdrop-blur-sm">
-                <ProjectContent module={selectedProjectModule} />
-              </article>
+                {nextProject ? (
+                  <BottomProjectNavButton direction="next" onClick={handleGoToNextProject} />
+                ) : null}
+              </div>
             </div>
           </motion.section>
         )}
