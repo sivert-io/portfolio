@@ -66,11 +66,8 @@ export function ProjectMeta({ meta }: { meta: ProjectMetaProps }) {
         <video
           src={meta.previewVideo}
           className="m-0! h-auto w-full overflow-hidden rounded-2xl object-cover p-0!"
-          autoPlay
-          muted
-          loop
           playsInline
-          controls={false}
+          controls
         />
       ) : meta.previewImage ? (
         <img
@@ -80,20 +77,22 @@ export function ProjectMeta({ meta }: { meta: ProjectMetaProps }) {
         />
       ) : null}
 
-      <div className="flex flex-wrap gap-2 rounded-full border border-white/10 bg-white/5 px-2 py-2 text-sm text-white/70">
-        {meta.website && <Link href={meta.website} label="Homepage" Icon={MdHomeFilled} />}
-        {meta.repo && <Link href={meta.repo} label="GitHub" />}
-        {stats && (
-          <>
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
-              <MdStar /> {stats.stars}
-            </span>
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
-              <MdForkRight /> {stats.forks}
-            </span>
-          </>
-        )}
-      </div>
+      {(meta.website || meta.repo) && (
+        <div className="flex flex-wrap gap-2 rounded-2xl border border-white/10 bg-white/5 px-2 py-2 text-sm text-white/70">
+          {meta.website && <Link href={meta.website} label="Homepage" Icon={MdHomeFilled} />}
+          {meta.repo && <Link href={meta.repo} label="GitHub" />}
+          {stats && (
+            <>
+              <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
+                <MdStar /> {stats.stars}
+              </span>
+              <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
+                <MdForkRight /> {stats.forks}
+              </span>
+            </>
+          )}
+        </div>
+      )}
     </div>
   )
 }

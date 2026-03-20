@@ -1,0 +1,18 @@
+export const meta = {
+  title: 'MatchZy Overtime Manager',
+  slug: 'matchzy-overtime-manager',
+  repo: 'https://github.com/sivert-io/matchzy-overtime-manager',
+  website: 'https://matchzy-overtime-manager.vercel.app/',
+}
+
+<ProjectMeta meta={meta} />
+
+MatchZy Overtime Manager is a lightweight service I built to enforce custom overtime rules for CS2 tournaments. It listens to MatchZy/get5 match events and acts as a control layer on top of the game server, making it possible to limit excessive overtime and keep tournament rules consistent.
+
+What made this project valuable was that it focused on a very specific operational problem. Instead of building a full tournament platform, I built a focused rules engine that could sit in the middle of live match flow and apply tournament-specific logic automatically. That meant thinking carefully about event handling, server integration, and how to keep match administration predictable during real competitive play.
+
+The project is built as an Express server in TypeScript and integrates directly with MatchZy remote logging and CS2 server configuration. It reflects a pattern that shows up in several of my projects: building small, practical systems that solve real operational pain points and fit cleanly into a larger automation ecosystem.
+
+This project gave me hands-on experience with event-driven backend design, rules enforcement, infrastructure integration, and building tooling for live competitive operations.
+
+**Tech:** TypeScript, Node.js, Express, Docker, CS2 server integration, MatchZy, get5 event handling, tournament automation
