@@ -53,7 +53,7 @@ export function LoadingScreen({ setShowStatus }: LoadingScreenProps) {
   }, [])
 
   return (
-    <div className="fixed inset-0 flex flex-col items-center justify-center overflow-hidden bg-black text-white">
+    <div className="fixed inset-0 z-[1] flex flex-col items-center justify-center overflow-hidden bg-black text-white">
       <motion.div
         initial={{ filter: 'blur(0px)', scale: START_SCALE }}
         animate={

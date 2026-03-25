@@ -330,7 +330,7 @@ function App() {
             <motion.div
               key={isProjectsRingOpen ? 'ring-projects' : 'ring-root'}
               exit={{ opacity: 0, transition: { duration: 0.2 } }}
-              className="fixed inset-0 grid place-items-center"
+              className="fixed inset-0 z-10 grid place-items-center"
             >
               <AnimatePresence mode="wait">
                 <AppRing
@@ -347,7 +347,7 @@ function App() {
                 />
               </AnimatePresence>
 
-              <motion.div className="relative z-10 flex h-0 w-0 flex-col items-center justify-center gap-4">
+              <motion.div className="relative flex h-0 w-0 flex-col items-center justify-center gap-4">
                 {isProjectsRingOpen && (
                   <BackButton
                     projectOpen={projectOpen}
@@ -396,7 +396,7 @@ function App() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="relative flex h-full w-full flex-col items-center gap-4"
+            className="relative z-20 flex h-full w-full flex-col items-center gap-4"
           >
             <div className="relative flex w-full max-w-7xl flex-col items-end gap-4 p-4 pt-20 pb-24 md:p-6 md:pt-28 md:pb-10">
               {previousProject ? (
